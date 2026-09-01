@@ -55,9 +55,19 @@ class Project extends Model
         return $this->hasMany(ProjectPajak::class);
     }
 
-    public function pinjaman(): HasMany
+    public function pinjaman()
     {
         return $this->hasMany(ProjectPinjaman::class);
+    }
+
+    public function workItems()
+    {
+        return $this->hasMany(WorkItem::class);
+    }
+
+    public function weeklyReports()
+    {
+        return $this->hasMany(WeeklyReport::class);
     }
 
     // ── Computed Helpers ──────────────────────────────
