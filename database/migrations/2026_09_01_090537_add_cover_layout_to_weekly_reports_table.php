@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('weekly_reports', function (Blueprint $table) {
-            //
+            $table->json('cover_layout')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('weekly_reports', function (Blueprint $table) {
-            //
+            $table->dropColumn('cover_layout');
         });
     }
 };

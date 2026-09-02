@@ -106,12 +106,12 @@
                                 <tbody class="bg-white divide-y divide-slate-100">
                                     @foreach($projects as $project)
                                         <tr class="hover:bg-slate-50 transition-colors">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <a href="{{ route('projects.show', $project) }}" class="text-primary-700 hover:text-primary-500 font-semibold">
+                                            <td class="px-6 py-4 whitespace-normal min-w-[300px]">
+                                                <a href="{{ route('projects.show', $project) }}" class="text-primary-700 hover:text-primary-500 font-semibold leading-tight block">
                                                     {{ $project->name }}
                                                 </a>
                                             </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                            <td class="px-6 py-4 whitespace-normal min-w-[200px] text-sm text-slate-500 leading-tight">
                                                 {{ $project->information->nama_pelanggan ?? '-' }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-700">

@@ -151,6 +151,19 @@ class WeeklyReportController extends Controller
             ->with('success', 'Laporan visual berhasil disimpan.');
     }
 
+    public function saveCoverLayout(Request $request, WeeklyReport $weeklyReport)
+    {
+        $request->validate([
+            'cover_layout' => 'required|array',
+        ]);
+
+        $weeklyReport->update([
+            'cover_layout' => $request->input('cover_layout'),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Cover layout saved successfully.']);
+    }
+
     public function downloadPdf(WeeklyReport $weeklyReport)
     {
         $project = $weeklyReport->project;

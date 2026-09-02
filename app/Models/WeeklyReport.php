@@ -12,10 +12,14 @@ class WeeklyReport extends Model
         'start_date',
         'end_date',
         'logo_left_path',
+        'cover_layout',
     ];
 
     protected $casts = [
         'start_date' => 'date',
+        'visual_date_1' => 'date',
+        'visual_date_2' => 'date',
+        'cover_layout' => 'array',
         'end_date' => 'date',
     ];
 

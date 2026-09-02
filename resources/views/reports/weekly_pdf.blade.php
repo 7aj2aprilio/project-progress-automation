@@ -4,8 +4,15 @@
     <meta charset="utf-8">
     <title>Laporan Mingguan</title>
     <style>
+        @font-face {
+            font-family: 'Arial Black';
+            src: url('{{ public_path('fonts/ariblk.ttf') }}') format('truetype');
+            font-weight: 900;
+            font-style: normal;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 10px;
         }
         .page-break {
@@ -54,35 +61,44 @@
 <body>
 
     <!-- PAGE 1: COVER -->
-    <div class="cover-page">
-        <div class="logos">
-            @if($weeklyReport->logo_left_path)
-                <img src="{{ public_path($weeklyReport->logo_left_path) }}" class="logo-left">
-            @else
-                <!-- Fallback logo if any -->
-                <div class="logo-left" style="width:100px; height:60px;"></div>
-            @endif
-            <img src="{{ public_path('images/logoTelkom.webp') }}" class="logo-right">
-            <div class="clear"></div>
+    @php
+        $logoLeftPath = $weeklyReport->logo_left_path ? public_path($weeklyReport->logo_left_path) : null;
+        if(!$logoLeftPath || !file_exists($logoLeftPath)) {
+            $logoLeftPath = public_path('images/placeholder.png');
+        }
+    @endphp
+    
+    <div class="cover-page" style="border: 1px solid black; margin: 10px; padding: 20px; height: 900px; position: relative; font-family: Arial, Helvetica, sans-serif;">
+        <!-- Header Logos -->
+        <div style="width: 100%; height: 80px; margin-bottom: 20px;">
+            <img src="{{ $logoLeftPath }}" style="float: left; max-width: 200px; max-height: 80px;">
+            <img src="{{ public_path('images/logoTelkom.webp') }}" style="float: right; max-width: 200px; max-height: 80px;">
+            <div style="clear: both;"></div>
         </div>
 
-        <div class="title-section">
-            <h3>PEKERJAAN</h3>
-            <h1>{{ strtoupper($project->name) }}</h1>
-            <br>
-            <h3>{{ strtoupper($project->information->lokasi_project ?? 'LOKASI') }}</h3>
-            <br><br><br>
-            <h1>LAPORAN MINGGUAN</h1>
-            <h3>(WEEKLY REPORT)</h3>
+        <!-- Text Project -->
+        <div style="text-align: center; font-weight: bold; line-height: 1.4; margin-top: 50px;">
+            <div style="font-size: 16px; margin-bottom: 20px;">PEKERJAAN</div>
+            <div style="font-size: 22px; margin-bottom: 20px;">{{ strtoupper($project->name) }}</div>
+            <div style="font-size: 14px;">{{ strtoupper($project->information->lokasi_project ?? 'LOKASI') }}</div>
         </div>
 
-        <div class="periode-section">
-            <h2>PERIODE :<br>MINGGU KE</h2>
-            <h1>{{ $weeklyReport->week_number }}</h1>
-            <h2>{{ $weeklyReport->start_date->format('d F Y') }} hingga {{ $weeklyReport->end_date->format('d F Y') }}</h2>
+        <!-- Text Report -->
+        <div style="text-align: center; font-weight: bold; line-height: 1.2; margin-top: 80px;">
+            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 900; margin-bottom: 10px;">LAPORAN MINGGUAN</div>
+            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 900;">(WEEKLY REPORT)</div>
         </div>
-
-        <div class="year-section">
+        
+        <!-- Text Period -->
+        <div style="position: absolute; bottom: 120px; left: 0; width: 100%; text-align: center; font-weight: bold; line-height: 1.3;">
+            <div style="font-size: 12px; margin-bottom: 5px;">PERIODE :</div>
+            <div style="font-size: 14px; margin-bottom: 10px;">MINGGU KE</div>
+            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 900; margin-bottom: 15px;">{{ $weeklyReport->week_number }}</div>
+            <div style="font-size: 14px;">{{ \Carbon\Carbon::parse($weeklyReport->start_date)->isoFormat('DD MMMM Y') }} &nbsp; hingga &nbsp; {{ \Carbon\Carbon::parse($weeklyReport->end_date)->isoFormat('DD MMMM Y') }}</div>
+        </div>
+        
+        <!-- Year -->
+        <div style="position: absolute; bottom: 40px; left: 0; width: 100%; text-align: center; font-weight: bold; font-size: 12px;">
             {{ $weeklyReport->start_date->format('Y') }}
         </div>
     </div>

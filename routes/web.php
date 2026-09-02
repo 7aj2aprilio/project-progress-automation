@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/weekly-reports/{weeklyReport}/edit', [App\Http\Controllers\WeeklyReportController::class, 'edit'])->name('weekly-reports.edit');
         Route::put('/weekly-reports/{weeklyReport}', [App\Http\Controllers\WeeklyReportController::class, 'update'])->name('weekly-reports.update');
         Route::post('/weekly-reports/{weeklyReport}/visuals', [App\Http\Controllers\WeeklyReportController::class, 'storeVisuals'])->name('weekly-reports.visuals.store');
+        Route::post('/weekly-reports/{weeklyReport}/cover-layout', [App\Http\Controllers\WeeklyReportController::class, 'saveCoverLayout'])->name('weekly-reports.cover-layout.save');
         Route::delete('/weekly-reports/{weeklyReport}', [App\Http\Controllers\WeeklyReportController::class, 'destroy'])->name('weekly-reports.destroy');
 
         // BoQ (Work Items) Management
