@@ -28,10 +28,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
         Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
-        // Weekly Reports Management
-        Route::get('/weekly-reports', [App\Http\Controllers\WeeklyReportController::class, 'projects'])->name('weekly-reports.projects');
-        Route::get('/weekly-reports/projects/{project}', [App\Http\Controllers\WeeklyReportController::class, 'projectDashboard'])->name('weekly-reports.project-dashboard');
-        
+        // Weekly Reports Management (Create/Update/Delete)
         Route::get('/projects/{project}/weekly-reports/create', [App\Http\Controllers\WeeklyReportController::class, 'create'])->name('weekly-reports.create');
         Route::post('/projects/{project}/weekly-reports', [App\Http\Controllers\WeeklyReportController::class, 'store'])->name('weekly-reports.store');
         Route::get('/weekly-reports/{weeklyReport}/edit', [App\Http\Controllers\WeeklyReportController::class, 'edit'])->name('weekly-reports.edit');
@@ -49,9 +46,16 @@ Route::middleware('auth')->group(function () {
     // Projects — view (all roles)
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     
+    // Weekly Reports - list and dashboard (all roles)
+    Route::get('/weekly-reports', [App\Http\Controllers\WeeklyReportController::class, 'projects'])->name('weekly-reports.projects');
+    Route::get('/weekly-reports/projects/{project}', [App\Http\Controllers\WeeklyReportController::class, 'projectDashboard'])->name('weekly-reports.project-dashboard');
+    
     // Weekly Reports - view and download PDF (all roles)
     Route::get('/weekly-reports/{weeklyReport}', [App\Http\Controllers\WeeklyReportController::class, 'show'])->name('weekly-reports.show');
     Route::get('/weekly-reports/{weeklyReport}/download-pdf', [App\Http\Controllers\WeeklyReportController::class, 'downloadPdf'])->name('weekly-reports.download-pdf');
+        
+    // Gantt Schedule Toggle
+    Route::post('/projects/{project}/toggle-gantt', [App\Http\Controllers\ProjectController::class, 'toggleGantt'])->name('projects.toggle-gantt');
 
     // User management (admin only)
     Route::middleware('role:admin')->group(function () {

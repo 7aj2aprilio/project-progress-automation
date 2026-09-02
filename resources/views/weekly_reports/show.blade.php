@@ -5,17 +5,17 @@
                 Laporan Mingguan ke-{{ $weeklyReport->week_number }} : {{ $project->name }}
             </h2>
             <div class="flex gap-2">
-                <a href="{{ route('weekly-reports.download-pdf', $weeklyReport) }}" target="_blank" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">
+                <a href="{{ route('weekly-reports.download-pdf', $weeklyReport) }}" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">
                     Cetak PDF
                 </a>
-                <a href="{{ route('projects.show', $project) }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
+                <a href="{{ route('weekly-reports.project-dashboard', ['project' => $project->id, 'tab' => 'weekly_reports']) }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
                     Kembali
                 </a>
             </div>
         </div>
     </x-slot>
 
-    <div class="py-12" x-data="{ activeTab: 'progress' }">
+    <div class="py-12" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'progress' }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <div class="mb-4">
@@ -118,7 +118,16 @@
                                                     <td class="px-4 py-2 border pl-12">{{ $item->name }}</td>
                                                     <td class="px-4 py-2 border text-right" id="bobot_{{ $item->id }}">{{ number_format($item->base_bobot, 2) }}</td>
                                                     <td class="px-4 py-2 border">
-                                                        <input type="number" step="0.01" name="progress[{{ $item->id }}]" value="{{ old('progress.' . $item->id, isset($progresses[$item->id]) && $progresses[$item->id] > 0 ? round($progresses[$item->id], 2) : '') }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                        @php
+                                                            $prevProgress = $previousProgresses[$item->id] ?? 0;
+                                                            $currProgress = old('progress.' . $item->id, $progresses[$item->id] ?? $prevProgress);
+                                                            $isComplete = $prevProgress >= 100;
+                                                        @endphp
+                                                        @if($isComplete)
+                                                            <input type="number" name="progress[{{ $item->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Sudah 100% di minggu sebelumnya">
+                                                        @else
+                                                            <input type="number" step="0.01" min="{{ $prevProgress }}" max="100" name="progress[{{ $item->id }}]" value="{{ $currProgress > 0 ? round($currProgress, 2) : '' }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                        @endif
                                                     </td>
                                                     <td class="px-4 py-2 border text-right bg-gray-50">
                                                         {{ number_format(($progresses[$item->id] ?? 0) / 100 * $item->base_bobot, 2) }}
@@ -131,7 +140,16 @@
                                                 <td class="px-4 py-2 border pl-8">{{ $subItem->name }}</td>
                                                 <td class="px-4 py-2 border text-right" id="bobot_{{ $subItem->id }}">{{ number_format($subItem->base_bobot, 2) }}</td>
                                                 <td class="px-4 py-2 border">
-                                                    <input type="number" step="0.01" name="progress[{{ $subItem->id }}]" value="{{ old('progress.' . $subItem->id, isset($progresses[$subItem->id]) && $progresses[$subItem->id] > 0 ? round($progresses[$subItem->id], 2) : '') }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                    @php
+                                                        $prevProgress = $previousProgresses[$subItem->id] ?? 0;
+                                                        $currProgress = old('progress.' . $subItem->id, $progresses[$subItem->id] ?? $prevProgress);
+                                                        $isComplete = $prevProgress >= 100;
+                                                    @endphp
+                                                    @if($isComplete)
+                                                        <input type="number" name="progress[{{ $subItem->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Sudah 100% di minggu sebelumnya">
+                                                    @else
+                                                        <input type="number" step="0.01" min="{{ $prevProgress }}" max="100" name="progress[{{ $subItem->id }}]" value="{{ $currProgress > 0 ? round($currProgress, 2) : '' }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                                                    @endif
                                                 </td>
                                                 <td class="px-4 py-2 border text-right bg-gray-50">
                                                     {{ number_format(($progresses[$subItem->id] ?? 0) / 100 * $subItem->base_bobot, 2) }}
@@ -145,7 +163,9 @@
                     </div>
 
                     <div class="mt-4 flex justify-end">
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow">Simpan Progress</button>
+                        @if(auth()->user()->canEdit())
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow">Simpan Progress</button>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -175,29 +195,64 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        @for($i = 1; $i <= 8; $i++)
-                            @php $visual = $visuals[$i-1] ?? null; @endphp
-                            <div class="border p-4 rounded-lg">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Gambar {{ $i }}</label>
-                                @if($visual && $visual->image_path)
-                                    <input type="hidden" name="visual_id_{{ $i }}" value="{{ $visual->id }}">
-                                    <div class="mb-2 relative">
-                                        <img src="{{ asset($visual->image_path) }}" alt="Preview" class="h-32 object-cover rounded shadow border w-full">
-                                        <label class="inline-flex items-center mt-2 text-sm text-red-600 font-semibold cursor-pointer">
-                                            <input type="checkbox" name="delete_visual_{{ $i }}" value="1" class="rounded border-red-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                            <span class="ml-2">Hapus Gambar Ini</span>
+                    <div x-data="{ newVisuals: [] }" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach($weeklyReport->visuals()->orderBy('position')->get() as $index => $visual)
+                                <div class="border p-4 rounded-lg bg-white shadow-sm">
+                                    <input type="hidden" name="existing_visual_ids[]" value="{{ $visual->id }}">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block text-sm font-medium text-gray-700">Visual {{ $index + 1 }}</label>
+                                        <label class="inline-flex items-center text-sm text-red-600 font-semibold cursor-pointer">
+                                            <input type="checkbox" name="delete_visuals[{{ $visual->id }}]" value="1" class="rounded border-red-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                                            <span class="ml-1">Hapus</span>
                                         </label>
                                     </div>
-                                    <label class="block text-xs text-gray-500 mb-1">Ganti Gambar (Opsional):</label>
-                                @endif
-                                <input type="file" name="visual_image_{{ $i }}" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                                <input type="text" name="visual_title_{{ $i }}" value="{{ old('visual_title_'.$i, $visual->title ?? '') }}" placeholder="Judul Gambar" class="mt-2 w-full border-gray-300 rounded shadow-sm">
+                                    <div class="mb-3">
+                                        <img src="{{ asset($visual->image_path) }}" alt="Preview" class="h-40 w-full object-cover rounded border">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div>
+                                            <label class="block text-xs text-gray-500 mb-1">Ganti Gambar (Opsional):</label>
+                                            <input type="file" name="existing_visual_images[{{ $visual->id }}]" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                        </div>
+                                        <div>
+                                            <input type="text" name="existing_visual_titles[{{ $visual->id }}]" value="{{ $visual->title }}" placeholder="Judul Gambar" class="w-full border-gray-300 rounded shadow-sm text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+
+                            <template x-for="(item, index) in newVisuals" :key="item.id">
+                                <div class="border p-4 rounded-lg bg-gray-50 border-dashed border-2 border-indigo-300 relative">
+                                    <button type="button" @click="newVisuals.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Visual Baru</label>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <input type="file" :name="`new_visual_images[${item.id}]`" accept="image/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                                        </div>
+                                        <div>
+                                            <input type="text" :name="`new_visual_titles[${item.id}]`" placeholder="Judul Gambar" class="w-full border-gray-300 rounded shadow-sm text-sm">
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        @if(auth()->user()->canEdit())
+                            <div class="mt-4">
+                                <button type="button" @click="newVisuals.push({ id: Date.now() })" class="inline-flex items-center px-4 py-2 bg-white border border-indigo-300 rounded-lg text-sm font-semibold text-indigo-700 hover:bg-indigo-50">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Tambah Visual Baru
+                                </button>
                             </div>
-                        @endfor
+                        @endif
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">Upload Visual</button>
+                        @if(auth()->user()->canEdit())
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">Upload Visual</button>
+                        @endif
                     </div>
                 </form>
             </div>

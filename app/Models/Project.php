@@ -70,6 +70,11 @@ class Project extends Model
         return $this->hasMany(WeeklyReport::class);
     }
 
+    public function ganttSchedules(): HasMany
+    {
+        return $this->hasMany(GanttSchedule::class);
+    }
+
     // ── Computed Helpers ──────────────────────────────
 
     public function getTotalRevenueAttribute(): float

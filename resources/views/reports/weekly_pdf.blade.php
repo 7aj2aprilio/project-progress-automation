@@ -90,7 +90,7 @@
         </div>
         
         <!-- Text Period -->
-        <div style="position: absolute; bottom: 120px; left: 0; width: 100%; text-align: center; font-weight: bold; line-height: 1.3;">
+        <div style="position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-weight: bold; line-height: 1.3;">
             <div style="font-size: 12px; margin-bottom: 5px;">PERIODE :</div>
             <div style="font-size: 14px; margin-bottom: 10px;">MINGGU KE</div>
             <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 900; margin-bottom: 15px;">{{ $weeklyReport->week_number }}</div>
@@ -473,59 +473,71 @@
     <div class="page-break"></div>
 
     <!-- PAGE 4: VISUAL -->
-    <div>
-        <table class="header-info" style="border: 1px solid black; width: 100%; margin-bottom: 20px;">
-            <tr>
-                <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">LAPORAN VISUAL</td>
-            </tr>
-            <tr>
-                <td colspan="2" style="border: 1px solid black; font-weight: bold;">
-                    {{ strtoupper($project->name) }}
-                </td>
-                <td style="border: 1px solid black; width: 15%;">MINGGU :</td>
-                <td style="border: 1px solid black; width: 15%; text-align: center; font-weight: bold;">{{ $weeklyReport->week_number }}</td>
-            </tr>
-            <tr>
-                <td style="width: 15%;">LOKASI</td>
-                <td>: {{ $project->information->lokasi_project ?? '-' }}</td>
-                <td colspan="2" rowspan="2" style="border: 1px solid black;">
-                    {{ $weeklyReport->start_date->format('d F Y') }}<br>
-                    {{ $weeklyReport->end_date->format('d F Y') }}
-                </td>
-            </tr>
-            <tr>
-                <td>TAHUN</td>
-                <td>: {{ $weeklyReport->start_date->format('Y') }}</td>
-            </tr>
-        </table>
+    @php
+        $visualsList = $weeklyReport->visuals()->orderBy('position')->get();
+        $visualChunks = $visualsList->chunk(8);
+        if ($visualChunks->isEmpty()) {
+            $visualChunks = collect([collect([])]); // Ensure at least one page if no visuals
+        }
+    @endphp
 
-        <!-- Visual Grid 4x2 -->
-        <table style="border: none;">
-            @php $vIndex = 1; @endphp
-            @for($i=0; $i<4; $i++)
+    @foreach($visualChunks as $pageIndex => $chunk)
+        @if($pageIndex > 0)
+            <div class="page-break"></div>
+        @endif
+        <div>
+            <table class="header-info" style="border: 1px solid black; width: 100%; margin-bottom: 20px;">
                 <tr>
-                    @for($j=0; $j<2; $j++)
-                        @php $v = $visuals[$vIndex] ?? null; @endphp
-                        <td style="border: none; padding: 5px; width: 50%; text-align: center;">
-                            <div style="border: 2px solid black; padding: 5px;">
-                                <div style="height: 180px; background-color: #eee;">
-                                    @if($v && $v->image_path)
-                                        <img src="{{ public_path($v->image_path) }}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
-                                    @else
-                                        <!-- No Image -->
-                                    @endif
-                                </div>
-                                <div style="margin-top: 5px; font-weight: bold; font-size: 9px;">
-                                    {{ $v ? $v->title : 'Visual ' . $vIndex }}
-                                </div>
-                            </div>
-                        </td>
-                        @php $vIndex++; @endphp
-                    @endfor
+                    <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">LAPORAN VISUAL {{ $pageIndex > 0 ? '(Lanjutan ' . $pageIndex . ')' : '' }}</td>
                 </tr>
-            @endfor
-        </table>
-    </div>
+                <tr>
+                    <td colspan="2" style="border: 1px solid black; font-weight: bold;">
+                        {{ strtoupper($project->name) }}
+                    </td>
+                    <td style="border: 1px solid black; width: 15%;">MINGGU :</td>
+                    <td style="border: 1px solid black; width: 15%; text-align: center; font-weight: bold;">{{ $weeklyReport->week_number }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 15%;">LOKASI</td>
+                    <td>: {{ $project->information->lokasi_project ?? '-' }}</td>
+                    <td colspan="2" rowspan="2" style="border: 1px solid black;">
+                        {{ $weeklyReport->start_date->format('d F Y') }}<br>
+                        {{ $weeklyReport->end_date->format('d F Y') }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>TAHUN</td>
+                    <td>: {{ $weeklyReport->start_date->format('Y') }}</td>
+                </tr>
+            </table>
+
+            <!-- Visual Grid 4x2 (Dynamic) -->
+            <table style="border: none; width: 100%;">
+                @php $rows = $chunk->chunk(2); @endphp
+                @foreach($rows as $row)
+                    <tr>
+                        @foreach($row as $v)
+                            <td style="border: none; padding: 5px; width: 50%; text-align: center; vertical-align: top;">
+                                <div style="border: 2px solid black; padding: 5px;">
+                                    <div style="height: 180px; text-align: center;">
+                                        @if($v->image_path && file_exists(public_path($v->image_path)))
+                                            <img src="{{ public_path($v->image_path) }}" style="max-width: 100%; max-height: 180px; object-fit: contain;">
+                                        @endif
+                                    </div>
+                                    <div style="margin-top: 5px; font-weight: bold; font-size: 10px; min-height: 15px;">
+                                        {{ $v->title }}
+                                    </div>
+                                </div>
+                            </td>
+                        @endforeach
+                        @if($row->count() == 1)
+                            <td style="border: none; padding: 5px; width: 50%;"></td>
+                        @endif
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+    @endforeach
 
 </body>
 </html>

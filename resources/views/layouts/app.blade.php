@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Telkom Property') }}</title>
+        <link rel="icon" href="{{ asset('images/logoTelkom.webp') }}" type="image/webp">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

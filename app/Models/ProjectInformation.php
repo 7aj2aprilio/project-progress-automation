@@ -19,7 +19,7 @@ class ProjectInformation extends Model
         'nama_project',
         'lokasi_project',
         'estimasi_mulai',
-        'durasi_project',
+        'estimasi_selesai',
         'durasi_retensi',
         'pengawasan_konstruksi',
         'tipe_bangunan',

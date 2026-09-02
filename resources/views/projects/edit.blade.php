@@ -105,14 +105,16 @@
                                            class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Estimasi Mulai Pekerjaan</label>
-                                    <input type="month" name="information[estimasi_mulai]" value="{{ old('information.estimasi_mulai', $info->estimasi_mulai?->format('Y-m')) }}"
-                                           class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Estimasi Mulai <span class="text-red-500">*</span></label>
+                                    <input type="date" name="information[estimasi_mulai]" value="{{ old('information.estimasi_mulai', $info->estimasi_mulai ? \Carbon\Carbon::parse($info->estimasi_mulai)->format('Y-m-d') : '') }}"
+                                           class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" required>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-slate-700 mb-1">Durasi Project (bulan)</label>
-                                    <input type="number" name="information[durasi_project]" value="{{ old('information.durasi_project', $info->durasi_project) }}" min="0"
-                                           class="w-full rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                                <div class="col-span-1">
+                                    <label class="block text-sm font-medium text-slate-700">Estimasi Selesai <span class="text-red-500">*</span></label>
+                                    <div class="mt-1 relative rounded-md shadow-sm">
+                                        <input type="date" name="information[estimasi_selesai]" value="{{ old('information.estimasi_selesai', $info->estimasi_selesai) }}"
+                                            class="focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md" required>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-1">Durasi Retensi (bulan)</label>

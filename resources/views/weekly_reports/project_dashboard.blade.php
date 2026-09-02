@@ -28,6 +28,11 @@
                                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
                                 2. Laporan Mingguan
                             </button>
+                            <button @click="activeTab = 'jadwal'"
+                                    :class="activeTab === 'jadwal' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                                3. Time Schedule (Gantt)
+                            </button>
                         </nav>
                     </div>
 
@@ -35,6 +40,7 @@
                     <div>
                         @include('projects.partials.boq-tab')
                         @include('projects.partials.weekly-reports-tab')
+                        @include('projects.partials.jadwal-tab')
                     </div>
 
                 </div>

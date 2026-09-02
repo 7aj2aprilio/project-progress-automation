@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WorkItem extends Model
 {
@@ -31,6 +32,11 @@ class WorkItem extends Model
     public function children()
     {
         return $this->hasMany(WorkItem::class, 'parent_id');
+    }
+
+    public function ganttSchedules(): HasMany
+    {
+        return $this->hasMany(GanttSchedule::class);
     }
 
     public function getBaseBobotAttribute()

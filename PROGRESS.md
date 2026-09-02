@@ -38,6 +38,11 @@ MVP of Tracking Proyek Konstruksi application has been **REFACTORED** to support
 - Add data export (Excel/PDF)
 - Consider adding audit trail / change log
 - Phase 2: Monthly cash flow projection (per PRD scope)
+- **Phase 3 (Planned): Kurva S / Time Schedule Feature**
+  - Buat tabel `work_item_schedules` (atau sejenisnya) untuk menyimpan sebaran bobot per minggu (Rencana/Target).
+  - Buat antarmuka (UI) agar User bisa menginput persentase target mingguan per item pekerjaan (seperti sel warna biru di Excel).
+  - Buat fungsionalitas perhitungan *Rencana Minggu ini*, *Rencana Kumulatif*, *Realisasi Minggu ini*, *Realisasi Kumulatif*, dan *Deviasi*.
+  - Menampilkan grafik Kurva S (garis Rencana vs Realisasi) di Dashboard/PDF Laporan.
 
 ## Important Notes
 

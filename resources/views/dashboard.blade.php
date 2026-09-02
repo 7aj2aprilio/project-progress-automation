@@ -1,19 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-bold text-xl text-slate-800 leading-tight">
-                {{ __('Dashboard Proyek') }}
-            </h2>
-            @if(auth()->user()->canEdit())
-                <a href="{{ route('projects.create') }}"
-                   class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Buat Proyek Baru
-                </a>
-            @endif
-        </div>
+        <h2 class="font-bold text-xl text-slate-800 leading-tight">
+            {{ __('Profitability dan Proyek') }}
+        </h2>
     </x-slot>
 
     <div class="py-8">
@@ -76,6 +65,17 @@
             </div>
 
             {{-- Project Table --}}
+            <div class="flex justify-end mb-4">
+                @if(auth()->user()->canEdit())
+                    <a href="{{ route('projects.create') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Buat Proyek Baru
+                    </a>
+                @endif
+            </div>
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200">
                 <div class="p-6">
                     @if($projects->isEmpty())

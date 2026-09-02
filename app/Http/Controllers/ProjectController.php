@@ -165,4 +165,32 @@ class ProjectController extends Controller
         return redirect()->route('dashboard')
             ->with('success', 'Proyek berhasil dihapus!');
     }
+
+    public function toggleGantt(Request $request, Project $project)
+    {
+        $request->validate([
+            'work_item_id' => 'required|exists:work_items,id',
+            'month_year' => 'required|string',
+            'week' => 'required|integer|min:1|max:5',
+        ]);
+
+        $schedule = \App\Models\GanttSchedule::where('project_id', $project->id)
+            ->where('work_item_id', $request->work_item_id)
+            ->where('month_year', $request->month_year)
+            ->where('week', $request->week)
+            ->first();
+
+        if ($schedule) {
+            $schedule->delete();
+            return response()->json(['status' => 'removed']);
+        } else {
+            \App\Models\GanttSchedule::create([
+                'project_id' => $project->id,
+                'work_item_id' => $request->work_item_id,
+                'month_year' => $request->month_year,
+                'week' => $request->week,
+            ]);
+            return response()->json(['status' => 'added']);
+        }
+    }
 }
