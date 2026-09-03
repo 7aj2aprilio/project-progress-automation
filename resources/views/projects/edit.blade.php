@@ -339,18 +339,43 @@
 
                         {{-- Tab 7: Cashflow Project --}}
                         <div x-show="activeTab === 'cashflow'" x-cloak>
+                            <style>
+                                .table-cashflow-edit { border-spacing: 0; border-collapse: separate; }
+                                .table-cashflow-edit th:nth-child(1), .table-cashflow-edit td:not([colspan]):nth-child(1) { 
+                                    position: sticky; left: 0; z-index: 10; background-color: white; border-right: 1px solid #e2e8f0; 
+                                }
+                                .table-cashflow-edit th:nth-child(2), .table-cashflow-edit td:not([colspan]):nth-child(2) { 
+                                    position: sticky; left: 220px; z-index: 10; background-color: #f1f5f9; border-right: 2px solid #cbd5e1; 
+                                }
+                                .table-cashflow-edit thead th:nth-child(1) { z-index: 20; background-color: #f1f5f9; color: #334155; }
+                                .table-cashflow-edit thead th:nth-child(2) { z-index: 20; background-color: #334155; color: white; }
+                                
+                                /* Explicit background colors for different row states */
+                                .table-cashflow-edit tr.bg-yellow-50 td:not([colspan]):nth-child(1) { background-color: #fefce8; }
+                                .table-cashflow-edit tr.bg-yellow-50 td:not([colspan]):nth-child(2) { background-color: #fef9c3; }
+                                
+                                .table-cashflow-edit tr.bg-yellow-50\/50 td:not([colspan]):nth-child(1) { background-color: #fcfcf5; }
+                                .table-cashflow-edit tr.bg-yellow-50\/50 td:not([colspan]):nth-child(2) { background-color: #fef9c3; }
+                                
+                                .table-cashflow-edit tr.bg-slate-200 td:not([colspan]):nth-child(1) { background-color: #e2e8f0; }
+                                .table-cashflow-edit tr.bg-slate-200 td:not([colspan]):nth-child(2) { background-color: #e2e8f0; }
+                                
+                                .table-cashflow-edit tr.bg-slate-100 td:not([colspan]):nth-child(1) { background-color: #f1f5f9; }
+                                .table-cashflow-edit tr.bg-slate-100 td:not([colspan]):nth-child(2) { background-color: #f1f5f9; }
+                            </style>
+
                             <h3 class="text-lg font-semibold mb-2 text-slate-800">Distribution % TOP Cashflow Bulanan</h3>
                             <p class="text-xs text-slate-500 mb-4">Isi persentase Term of Payment (% TOP) Pelanggan dan Mitra per bulan. Sistem akan menghitung nominal Cash In, Cash Out, dan Kelayakan proyek secara otomatis.</p>
                             
                             @if(count($project->cashflows) > 0)
-                                <div class="overflow-x-auto border border-slate-200 rounded-lg">
-                                    <table class="min-w-full divide-y divide-slate-200 text-xs">
+                                <div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm relative">
+                                    <table class="table-cashflow-edit min-w-full divide-y divide-slate-200 text-xs relative">
                                         <thead class="bg-slate-100 font-bold text-slate-700">
                                             <tr>
-                                                <th class="px-3 py-2 text-left min-w-[220px]">Item / Bulan</th>
-                                                <th class="px-3 py-2 text-right min-w-[130px] bg-slate-700 text-white font-bold">Total</th>
+                                                <th class="px-3 py-2 text-left w-[220px] min-w-[220px] max-w-[220px]">Item / Bulan</th>
+                                                <th class="px-3 py-2 text-right w-[130px] min-w-[130px] max-w-[130px] bg-slate-700 text-white font-bold">Total</th>
                                                 @foreach($project->cashflows as $cf)
-                                                    <th class="px-3 py-2 text-center min-w-[110px]">
+                                                    <th class="px-3 py-2 text-center min-w-[120px] w-[120px]">
                                                         Bulan {{ $cf->month_index }}<br>
                                                         <span class="text-[10px] font-normal text-slate-500">
                                                             {{ $cf->month_date ? \Carbon\Carbon::parse($cf->month_date)->format('M Y') : '-' }}
@@ -361,23 +386,24 @@
                                             <tbody class="divide-y divide-slate-200 bg-white">
                                              {{-- SECTION 1: TOP (progress) --}}
                                              <tr class="bg-red-800 text-white font-bold text-xs uppercase">
-                                                 <td class="px-3 py-2" colspan="{{ count($project->cashflows) + 2 }}">TOP (progress)</td>
+                                                 <td class="p-0 bg-red-800" colspan="{{ count($project->cashflows) + 2 }}">
+                                                     <div class="px-3 py-2 sticky left-0 w-max">TOP (progress)</div>
+                                                 </td>
                                              </tr>
                                              <tr>
                                                  <td class="px-3 py-2 font-semibold text-slate-800">% PROGRESS PEKERJAAN</td>
-                                                 <td class="px-3 py-2 text-right font-bold bg-slate-100">{{ number_format($project->cashflows->max('pct_progress'), 2, ',', '.') }}%</td>
+                                                 <td class="px-3 py-2 text-right font-bold bg-slate-100">{{ number_format($project->cashflows->max('pct_progress'), 1, '.', '') }}%</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-2 py-1">
-                                                         <input type="number" step="0.01" min="0" max="100"
-                                                                name="cashflows[{{ $cf->month_index }}][pct_progress]"
-                                                                value="{{ old('cashflows.'.$cf->month_index.'.pct_progress', $cf->pct_progress) }}"
-                                                                class="w-full text-center text-xs rounded border-slate-300 py-1">
+                                                         <input type="text"
+                                                                value="{{ number_format(old('cashflows.'.$cf->month_index.'.pct_progress', $cf->pct_progress), 1, '.', '') }}%"
+                                                                class="w-full text-center text-xs rounded border-slate-200 py-1 bg-slate-100 text-slate-500 cursor-not-allowed" readonly title="Dihitung otomatis berdasarkan durasi">
                                                      </td>
                                                  @endforeach
                                              </tr>
                                              <tr class="bg-yellow-50">
                                                  <td class="px-3 py-2 font-semibold text-slate-900">% TERM OF PAYMENT PELANGGAN</td>
-                                                 <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_pelanggan'), 2, ',', '.') }}%</td>
+                                                 <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_pelanggan'), 1, '.', '') }}%</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-2 py-1">
                                                          <input type="number" step="0.01" min="0" max="100"
@@ -389,7 +415,7 @@
                                              </tr>
                                              <tr class="bg-yellow-50/50">
                                                  <td class="px-3 py-2 font-semibold text-slate-900">% TERM OF PAYMENT KEPADA MITRA</td>
-                                                 <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_mitra'), 2, ',', '.') }}%</td>
+                                                 <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_mitra'), 1, '.', '') }}%</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-2 py-1">
                                                          <input type="number" step="0.01" min="0" max="100"
@@ -402,7 +428,7 @@
 
                                              {{-- SECTION 2: REVENUE STREAM / CASH IN --}}
                                              <tr class="bg-slate-200 font-bold border-t-2 border-slate-400">
-                                                 <td class="px-3 py-2 text-slate-900">REVENUE STREAM / CASH IN</td>
+                                                 <td class="px-3 py-2 text-slate-900 !bg-slate-200">REVENUE STREAM / CASH IN</td>
                                                  <td class="px-3 py-2 text-right text-slate-900 font-black">Rp {{ number_format($project->cashflows->sum('cash_in'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2 text-right text-slate-900 font-bold">Rp {{ number_format($cf->cash_in, 0, ',', '.') }}</td>
@@ -437,7 +463,7 @@
 
                                              {{-- SECTION 3: COST STRUCTURE / CASH OUT --}}
                                              <tr class="bg-slate-200 font-bold border-t-2 border-slate-400">
-                                                 <td class="px-3 py-2 text-slate-900">COST STRUCTURE / CASH OUT</td>
+                                                 <td class="px-3 py-2 text-slate-900 !bg-slate-200">COST STRUCTURE / CASH OUT</td>
                                                  <td class="px-3 py-2 text-right text-slate-900 font-black">Rp {{ number_format($project->cashflows->sum('cash_out'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2 text-right text-slate-900 font-bold">Rp {{ number_format($cf->cash_out, 0, ',', '.') }}</td>
@@ -458,8 +484,10 @@
                                              </tr>
 
                                              {{-- SECTION 4: BEBAN LAINNYA --}}
-                                             <tr class="bg-slate-100 font-bold border-t border-slate-300">
-                                                 <td class="px-3 py-2 text-slate-800" colspan="{{ count($project->cashflows) + 2 }}">BEBAN LAINNYA</td>
+                                             <tr class="bg-slate-100 font-bold text-slate-800 uppercase">
+                                                 <td class="p-0 bg-slate-100" colspan="{{ count($project->cashflows) + 2 }}">
+                                                     <div class="px-3 py-2 sticky left-0 w-max">BEBAN LAINNYA</div>
+                                                 </td>
                                              </tr>
                                              <tr>
                                                  <td class="px-3 py-1.5 text-slate-600 pl-6">Fee Fasilitas Jaminan</td>
@@ -540,10 +568,10 @@
                                                  @endforeach
                                              </tr>
 
-                                             {{-- SECTION 5: CALCULATED FINANCING & CASH FLOW --}}
+
                                              <tr class="bg-slate-800 text-white font-bold">
-                                                 <td class="px-3 py-2">GROSS MARGIN / EBIT</td>
-                                                 <td class="px-3 py-2 text-right font-black bg-slate-900 text-white">Rp {{ number_format($project->cashflows->sum('gross_margin'), 0, ',', '.') }}</td>
+                                                 <td class="px-3 py-2 !bg-slate-800">GROSS MARGIN / EBIT</td>
+                                                 <td class="px-3 py-2 text-right font-black !bg-slate-800 text-white">Rp {{ number_format($project->cashflows->sum('gross_margin'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2 text-right font-bold">Rp {{ number_format($cf->gross_margin, 0, ',', '.') }}</td>
                                                  @endforeach
@@ -556,7 +584,9 @@
                                                  @endforeach
                                              </tr>
                                              <tr class="bg-slate-100 font-semibold">
-                                                 <td class="px-3 py-1.5 text-slate-700" colspan="{{ count($project->cashflows) + 2 }}">PPn yang harus dibayarkan</td>
+                                                 <td class="p-0 bg-slate-100" colspan="{{ count($project->cashflows) + 2 }}">
+                                                     <div class="px-3 py-1.5 sticky left-0 w-max">PPn yang harus dibayarkan</div>
+                                                 </td>
                                              </tr>
                                              <tr>
                                                  <td class="px-3 py-1.5 text-slate-600 pl-6">PPn Keluaran</td>
@@ -572,16 +602,16 @@
                                                      <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->ppn_masukan, 0, ',', '.') }}</td>
                                                  @endforeach
                                              </tr>
-                                             <tr class="bg-purple-50 font-semibold">
-                                                 <td class="px-3 py-1.5 text-purple-900 pl-6">Kredit PPn</td>
-                                                 <td class="px-3 py-1.5 text-right font-bold text-purple-950 bg-purple-200">Rp {{ number_format($project->cashflows->sum('kredit_ppn'), 0, ',', '.') }}</td>
+                                             <tr class="bg-purple-100">
+                                                 <td class="px-3 py-1.5 text-purple-900 pl-6 !bg-purple-100 font-semibold">Kredit PPn</td>
+                                                 <td class="px-3 py-1.5 text-right font-bold text-purple-950 !bg-purple-100">Rp {{ number_format($project->cashflows->sum('kredit_ppn'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
-                                                     <td class="px-3 py-1.5 text-right text-purple-900">Rp {{ number_format($cf->kredit_ppn, 0, ',', '.') }}</td>
+                                                     <td class="px-3 py-1.5 text-right font-bold text-purple-950">Rp {{ number_format($cf->kredit_ppn, 0, ',', '.') }}</td>
                                                  @endforeach
                                              </tr>
-                                             <tr class="bg-emerald-100 font-bold border-t border-b border-slate-300">
-                                                 <td class="px-3 py-2 text-emerald-950">GROSS MARGIN + PPH</td>
-                                                 <td class="px-3 py-2 text-right text-emerald-950 font-black bg-emerald-200">Rp {{ number_format($project->cashflows->sum('gross_margin') - $project->cashflows->sum('pph'), 0, ',', '.') }}</td>
+                                             <tr class="bg-emerald-100 font-bold border-t border-b border-emerald-300">
+                                                 <td class="px-3 py-2 text-emerald-950 !bg-emerald-100">GROSS MARGIN + PPH</td>
+                                                 <td class="px-3 py-2 text-right text-emerald-950 font-black !bg-emerald-100">Rp {{ number_format($project->cashflows->sum('gross_margin') - $project->cashflows->sum('pph'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2 text-right text-emerald-950 font-bold">Rp {{ number_format($cf->gross_margin - $cf->pph, 0, ',', '.') }}</td>
                                                  @endforeach
@@ -614,16 +644,16 @@
                                                      <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->beban_bunga, 0, ',', '.') }}</td>
                                                  @endforeach
                                              </tr>
-                                             <tr class="bg-indigo-100 font-bold border-t-2 border-slate-400">
-                                                 <td class="px-3 py-2 text-indigo-900">CASH MARGIN</td>
-                                                 <td class="px-3 py-2 text-right text-indigo-950 font-black bg-indigo-200">Rp {{ number_format($project->cashflows->sum('cash_margin'), 0, ',', '.') }}</td>
+                                             <tr class="bg-indigo-100 font-bold border-t-2 border-indigo-200">
+                                                 <td class="px-3 py-2 text-indigo-900 !bg-indigo-100">CASH MARGIN</td>
+                                                 <td class="px-3 py-2 text-right text-indigo-950 font-black !bg-indigo-100">Rp {{ number_format($project->cashflows->sum('cash_margin'), 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2 text-right text-indigo-900">Rp {{ number_format($cf->cash_margin, 0, ',', '.') }}</td>
                                                  @endforeach
                                              </tr>
                                              <tr class="bg-slate-900 text-white font-bold">
-                                                 <td class="px-3 py-2.5">CASH FLOW KUMULATIF</td>
-                                                 <td class="px-3 py-2.5 text-right font-black bg-slate-800 text-yellow-300">Rp {{ number_format($project->cashflows->last()->cash_flow_kumulatif ?? 0, 0, ',', '.') }}</td>
+                                                 <td class="px-3 py-2.5 !bg-slate-900">CASH FLOW KUMULATIF</td>
+                                                 <td class="px-3 py-2.5 text-right font-black text-yellow-300 !bg-slate-900">Rp {{ number_format($project->cashflows->last()->cash_flow_kumulatif ?? 0, 0, ',', '.') }}</td>
                                                  @foreach($project->cashflows as $cf)
                                                      <td class="px-3 py-2.5 text-right {{ $cf->cash_flow_kumulatif < 0 ? 'text-red-400 font-extrabold' : 'text-emerald-400' }}">
                                                          Rp {{ number_format($cf->cash_flow_kumulatif, 0, ',', '.') }}

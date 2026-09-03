@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Services\ProjectCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ProjectController extends Controller
 {
@@ -56,6 +57,24 @@ class ProjectController extends Controller
         return view('projects.show', compact('project'));
     }
 
+    public function exportCashflow(Project $project)
+    {
+        $project->load([
+            'information', 'assumption', 'costStructure',
+            'beban', 'jaminan', 'revenues', 'pajak', 'pinjaman', 'cashflows'
+        ]);
+
+        if ($project->cashflows->count() === 0) {
+            $this->calculator->calculate($project);
+            $project->load('cashflows');
+        }
+
+        $pdf = Pdf::loadView('projects.pdf.cashflow', compact('project'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('Cashflow-' . str_replace(' ', '-', $project->name) . '.pdf');
+    }
+
     public function edit(Project $project)
     {
         $project->load([
@@ -86,10 +105,10 @@ class ProjectController extends Controller
             if ($request->input('revenue_mode') === 'rincian') {
                 $infoData['total_revenue'] = null;
             }
-            $project->information->update($infoData);
+            $project->information()->updateOrCreate(['project_id' => $project->id], $infoData);
             
-            $project->assumption->update($request->input('assumption', []));
-            $project->costStructure->update($request->input('cost_structure', []));
+            $project->assumption()->updateOrCreate(['project_id' => $project->id], $request->input('assumption', []));
+            $project->costStructure()->updateOrCreate(['project_id' => $project->id], $request->input('cost_structure', []));
 
             // Helper to check standard auto item names
             $isStandard = function($name) {
@@ -182,7 +201,6 @@ class ProjectController extends Controller
             $cashflowInputs = $request->input('cashflows', []);
             foreach ($cashflowInputs as $mIndex => $cfData) {
                 $project->cashflows()->where('month_index', $mIndex)->update([
-                    'pct_progress' => $cfData['pct_progress'] ?? 0,
                     'pct_top_pelanggan' => $cfData['pct_top_pelanggan'] ?? 0,
                     'pct_top_mitra' => $cfData['pct_top_mitra'] ?? 0,
                     'jasa_konstruksi' => $cfData['jasa_konstruksi'] ?? 0,

@@ -12,17 +12,19 @@ class RABSeeder extends Seeder
     public function run()
     {
         DB::transaction(function () {
-            // Get or Create Project
             $project = Project::firstOrCreate(
-                ['name' => 'Proyek Gedung Kantor ABC'],
+                ['name' => 'PEMBUATAN INTERIOR KANTOR REGIONAL III  PT ASDP INDONESIA FERRY'],
                 [
-                    'description' => 'Data RAB Fit Out dan Mekanikal Elektrikal',
-                    'start_date' => now(),
-                    'end_date' => now()->addMonths(3),
-                    'total_budget' => 594000000,
-                    'status' => 'planning'
+                    'status' => 'active'
                 ]
             );
+
+            $project->information()->updateOrCreate([], [
+                'nama_pelanggan' => 'PT ASDP INDONESIA FERRY',
+                'nama_project' => 'PEMBUATAN INTERIOR KANTOR REGIONAL III  PT ASDP INDONESIA FERRY',
+                'estimasi_mulai' => now(),
+                'estimasi_selesai' => now()->addMonths(3),
+            ]);
 
             // Optional: Clear existing work items for this project to avoid duplicates if run multiple times
             WorkItem::where('project_id', $project->id)->delete();

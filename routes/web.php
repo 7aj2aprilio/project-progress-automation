@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
 
     // Projects — view (all roles)
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{project}/export-cashflow', [ProjectController::class, 'exportCashflow'])->name('projects.export-cashflow');
     
     // Weekly Reports - list and dashboard (all roles)
     Route::get('/weekly-reports', [App\Http\Controllers\WeeklyReportController::class, 'projects'])->name('weekly-reports.projects');

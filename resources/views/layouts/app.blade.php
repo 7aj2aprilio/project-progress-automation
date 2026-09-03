@@ -23,7 +23,7 @@
             </div>
 
             {{-- Main Content --}}
-            <div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+            <div class="flex-1 md:ml-64 flex flex-col min-h-screen min-w-0">
                 <!-- Page Heading -->
                 @isset($header)
                     <header class="bg-white shadow-sm border-b border-slate-200">
@@ -34,7 +34,7 @@
                 @endisset
 
                 <!-- Page Content -->
-                <main class="flex-1">
+                <main class="flex-1 min-w-0">
                     {{ $slot }}
                 </main>
             </div>
