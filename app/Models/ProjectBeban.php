@@ -11,7 +11,7 @@ class ProjectBeban extends Model
 
     protected $table = 'project_beban';
 
-    protected $fillable = ['project_id', 'name', 'amount'];
+    protected $fillable = ['project_id', 'name', 'amount', 'is_manual'];
 
     public function project()
     {

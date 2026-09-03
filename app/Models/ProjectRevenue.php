@@ -11,7 +11,7 @@ class ProjectRevenue extends Model
 
     protected $table = 'project_revenues';
 
-    protected $fillable = ['project_id', 'name', 'amount'];
+    protected $fillable = ['project_id', 'name', 'amount', 'is_manual'];
 
     public function project()
     {

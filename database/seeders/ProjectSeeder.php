@@ -21,7 +21,7 @@ class ProjectSeeder extends Seeder
             'nama_project' => 'Pembangunan Gedung Kantor ABC',
             'lokasi_project' => 'Jakarta Selatan',
             'estimasi_mulai' => '2024-03-01',
-            'durasi_project' => 12,
+            'estimasi_selesai' => '2025-03-01',
             'durasi_retensi' => 6,
             'pengawasan_konstruksi' => 'Sendiri',
             'tipe_bangunan' => 'Gedung Bertingkat',
@@ -73,8 +73,8 @@ class ProjectSeeder extends Seeder
             ['name' => 'Bunga Pinjaman (per bulan)'],
         ]);
 
-        // Run calculator to populate dynamic fields
-        $calculator = new ProjectCalculator();
+        // Run calculator to populate dynamic fields and cashflows
+        $calculator = app(ProjectCalculator::class);
         $project->refresh();
         $calculator->calculate($project);
     }

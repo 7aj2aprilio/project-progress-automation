@@ -7,6 +7,10 @@ use App\Models\GlobalSetting;
 
 class ProjectCalculator
 {
+    public function __construct(
+        protected CashflowCalculator $cashflowCalculator
+    ) {}
+
     /**
      * Recalculate all dynamic fields for a project.
      * Respects is_manual flags — only overwrites non-manual fields.
@@ -21,6 +25,9 @@ class ProjectCalculator
         $this->calculateGuarantees($project);
         $this->calculateLoans($project);
         $this->calculateTaxes($project);
+
+        // Recalculate Cashflow Schedule
+        $this->cashflowCalculator->calculate($project);
     }
 
     protected function calculateGuarantees(Project $project): void
@@ -43,8 +50,7 @@ class ProjectCalculator
         $loanRate = $project->information->loan_rate ?? 1.65;
         
         // Other rates are global
-        $provisiRate = GlobalSetting::getValue('provisi_rate', 1);
-        $sukuBungaPerbulan = GlobalSetting::getValue('suku_bunga_perbulan', 1);
+        $provisiRate = (float) GlobalSetting::getValue('provisi_rate', 1);
 
         // Find Besar Pinjaman value for formulas
         $besarPinjamanValue = 0;
@@ -68,8 +74,8 @@ class ProjectCalculator
                 }
             } elseif (stripos($pinj->name, 'Bunga Pinjaman') !== false) {
                 if (! $pinj->is_manual) {
-                    $sukuBungaPertahun = GlobalSetting::getValue('suku_bunga_pertahun', 12);
-                    $monthlyRate = $sukuBungaPertahun / 12 / 100;
+                    $sukuBungaPertahun = (float) GlobalSetting::getValue('suku_bunga_pertahun', 10.89);
+                    $monthlyRate = ($sukuBungaPertahun / 12) / 100;
                     $pinj->amount = $monthlyRate * 1 * $besarPinjamanValue;
                     $pinj->save();
                 }
@@ -80,10 +86,10 @@ class ProjectCalculator
     protected function calculateTaxes(Project $project): void
     {
         $totalRevenue = $project->total_revenue;
-        $totalCost = $project->total_cost;
+        $costMitra = (float) ($project->costStructure->biaya_mitra_pelaksana ?? 0);
 
-        $ppnRate = GlobalSetting::getValue('ppn_rate', 11);
-        $pphRate = GlobalSetting::getValue('pph_rate', 2);
+        $ppnRate = (float) GlobalSetting::getValue('ppn_rate', 12);
+        $pphRate = (float) GlobalSetting::getValue('pph_rate', 2.65);
 
         foreach ($project->pajak as $tax) {
             if ($tax->is_manual) continue;
@@ -91,7 +97,7 @@ class ProjectCalculator
             $name = strtolower($tax->name);
             
             if (str_contains($name, 'pph') || str_contains($name, 'pasal 23')) {
-                // PPh Pasal 23 = Total Revenue × PPh rate
+                // PPh Pasal 23 = Total Revenue × PPh rate (2.65%)
                 $tax->amount = $totalRevenue * ($pphRate / 100);
                 $tax->save();
             } elseif (str_contains($name, 'keluaran')) {
@@ -99,8 +105,14 @@ class ProjectCalculator
                 $tax->amount = (11 / 12) * ($ppnRate / 100) * $totalRevenue;
                 $tax->save();
             } elseif (str_contains($name, 'masukan')) {
-                // PPN Masukan = 11/12 * PPN rate * Total Cost
-                $tax->amount = (11 / 12) * ($ppnRate / 100) * $totalCost;
+                // PPN Masukan = 11/12 * PPN rate * Biaya Mitra
+                $tax->amount = (11 / 12) * ($ppnRate / 100) * $costMitra;
+                $tax->save();
+            } elseif (str_contains($name, 'kredit')) {
+                // Kredit PPN = PPN Keluaran - PPN Masukan
+                $ppnKel = (11 / 12) * ($ppnRate / 100) * $totalRevenue;
+                $ppnMas = (11 / 12) * ($ppnRate / 100) * $costMitra;
+                $tax->amount = $ppnKel - $ppnMas;
                 $tax->save();
             }
         }

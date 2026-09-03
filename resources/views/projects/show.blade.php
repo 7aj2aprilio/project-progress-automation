@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                @if(auth()->user()->canEdit())
+                @if(auth()->user()?->canEdit())
                     <a href="{{ route('projects.edit', $project) }}"
                        class="inline-flex items-center px-4 py-2 bg-amber-500 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-amber-600 transition ease-in-out duration-150 shadow-sm">
                         Edit Proyek
@@ -125,19 +125,36 @@
                         </tr>
                         <tr>
                             <td class="px-4 py-2 border-r border-gray-300">CF selama kontrak</td>
-                            <td class="px-4 py-2 text-center border-r border-gray-300">0</td>
-                            <td class="px-4 py-2 text-center font-semibold">All CF {{ $project->net_cash_flow > 0 ? 'Positif' : 'Negatif' }}</td>
+                            <td class="px-4 py-2 text-center border-r border-gray-300">{{ $project->has_cf_negatif ? 1 : 0 }}</td>
+                            <td class="px-4 py-2 text-center font-semibold {{ $project->has_cf_negatif ? 'text-red-700 font-bold' : 'text-emerald-700' }}">
+                                {{ $project->has_cf_negatif ? 'Terdapat CF Negatif' : 'All CF Positif' }}
+                            </td>
                         </tr>
-                        <tr class="bg-green-100 border-y-2 border-gray-800">
+                        <tr class="{{ $project->kelayakan === 'Layak' ? 'bg-emerald-100' : 'bg-red-100' }} border-y-2 border-gray-800">
                             <td class="px-4 py-3 font-bold text-slate-900 border-r border-gray-800 text-center uppercase" colspan="1">KESIMPULAN</td>
-                            <td class="px-4 py-3 text-center font-bold text-slate-900" colspan="2">
-                                {{ $project->kelayakan }} dengan Net Income sebesar {{ number_format($project->net_income_percentage, 2, ',', '.') }}%
+                            <td class="px-4 py-3 text-center font-bold {{ $project->kelayakan === 'Layak' ? 'text-emerald-900' : 'text-red-900' }}" colspan="2">
+                                {{ $project->kesimpulan_kelayakan_detail }}
                             </td>
                         </tr>
                         <tr class="bg-white border-b-2 border-gray-800">
                             <td class="px-4 py-2 font-bold text-slate-900 border-r border-gray-800">REVENUE INCL PPN</td>
-                            <td class="px-4 py-2 text-center font-bold border-r border-gray-800">11/12*{{ \App\Models\GlobalSetting::getValue('ppn_rate', 11) }}%</td>
+                            <td class="px-4 py-2 text-center font-bold border-r border-gray-800">11/12*{{ \App\Models\GlobalSetting::getValue('ppn_rate', 12) }}%</td>
                             <td class="px-4 py-2 text-right font-bold text-slate-900">Rp {{ number_format($project->revenue_incl_ppn, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="bg-gray-100 font-bold border-t-2 border-gray-800">
+                            <td colspan="3" class="px-4 py-2 text-slate-900 font-bold">Notes lain-lain:</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td class="px-4 py-1.5 text-slate-700 pl-8" colspan="2">Biaya Mitra Pelaksana (Exclude PPN)</td>
+                            <td class="px-4 py-1.5 text-right font-bold text-slate-900">Rp {{ number_format($project->cashflows()->sum('biaya_mitra'), 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td class="px-4 py-1.5 text-slate-700 pl-8" colspan="2">BOP Project</td>
+                            <td class="px-4 py-1.5 text-right font-bold text-slate-900">Rp {{ number_format($project->cashflows()->sum('bop_project'), 0, ',', '.') }}</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td class="px-4 py-1.5 text-slate-700 pl-8" colspan="2">Management Fee GSD</td>
+                            <td class="px-4 py-1.5 text-right font-bold text-slate-900">Rp {{ number_format($project->cashflows()->sum('management_fee'), 0, ',', '.') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -155,6 +172,7 @@
                                 'jaminan' => '4. Jaminan',
                                 'pajak' => '5. Pajak',
                                 'pinjaman' => '6. Pinjaman',
+                                'cashflow' => '7. Cashflow Project',
                             ];
                         @endphp
                         @foreach($tabs as $key => $label)
@@ -318,7 +336,249 @@
                         @endif
                     </div>
 
-                </div>
+                    {{-- Tab 7: Cashflow Project --}}
+                    <div x-show="activeTab === 'cashflow'" x-cloak>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-800">Tabel Cashflow Project Bulanan</h3>
+                                <p class="text-xs text-slate-500">Matrik simulasi arus kas bulanan berdasarkan % TOP Pelanggan & % TOP Mitra.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $project->has_cf_negatif ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800' }}">
+                                    {{ $project->has_cf_negatif ? '⚠️ Terdapat CF Negatif' : '✅ All CF Positif' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        @if(count($project->cashflows) > 0)
+                            <div class="overflow-x-auto border border-gray-800 rounded-lg shadow-sm">
+                                <table class="min-w-full divide-y divide-gray-300 text-xs font-mono">
+                                    <thead class="bg-slate-800 text-white font-sans">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left min-w-[220px]">Jangka Waktu (Bulan)</th>
+                                            <th class="px-3 py-2 text-right min-w-[120px]">Total</th>
+                                            @foreach($project->cashflows as $cf)
+                                                <th class="px-3 py-2 text-center min-w-[110px]">
+                                                    Bulan {{ $cf->month_index }}<br>
+                                                    <span class="text-[10px] font-normal text-slate-300">
+                                                        {{ $cf->month_date ? \Carbon\Carbon::parse($cf->month_date)->format('M Y') : '-' }}
+                                                    </span>
+                                                </th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 bg-white font-sans">
+                                        {{-- SECTION 1: TOP (progress) --}}
+                                        <tr class="bg-red-800 text-white font-bold text-xs uppercase">
+                                            <td class="px-3 py-2" colspan="{{ count($project->cashflows) + 2 }}">TOP (progress)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-2 font-semibold text-slate-800">% PROGRESS PEKERJAAN</td>
+                                            <td class="px-3 py-2 text-right font-bold bg-slate-100">{{ number_format($project->cashflows->max('pct_progress'), 2, ',', '.') }}%</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-center">{{ number_format($cf->pct_progress, 2, ',', '.') }}%</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-yellow-50">
+                                            <td class="px-3 py-2 font-semibold text-slate-900">% TERM OF PAYMENT PELANGGAN</td>
+                                            <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_pelanggan'), 2, ',', '.') }}%</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-center font-bold text-slate-900">{{ number_format($cf->pct_top_pelanggan, 2, ',', '.') }}%</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-yellow-50/50">
+                                            <td class="px-3 py-2 font-semibold text-slate-900">% TERM OF PAYMENT KEPADA MITRA</td>
+                                            <td class="px-3 py-2 text-right font-bold text-slate-900 bg-yellow-100">{{ number_format($project->cashflows->sum('pct_top_mitra'), 2, ',', '.') }}%</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-center font-bold text-slate-900">{{ number_format($cf->pct_top_mitra, 2, ',', '.') }}%</td>
+                                            @endforeach
+                                        </tr>
+
+                                        {{-- SECTION 2: REVENUE STREAM / CASH IN --}}
+                                        <tr class="bg-slate-200 font-bold border-t-2 border-slate-400">
+                                            <td class="px-3 py-2 text-slate-900">REVENUE STREAM / CASH IN</td>
+                                            <td class="px-3 py-2 text-right text-slate-900 font-black">Rp {{ number_format($project->cashflows->sum('cash_in'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-right text-slate-900 font-bold">Rp {{ number_format($cf->cash_in, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-700 pl-6">Jasa Pelaksanaan konstruksi</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('jasa_konstruksi'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->jasa_konstruksi, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-700 pl-6">Management Fee GSD</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('management_fee'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->management_fee, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+
+                                        {{-- SECTION 3: COST STRUCTURE / CASH OUT --}}
+                                        <tr class="bg-slate-200 font-bold border-t-2 border-slate-400">
+                                            <td class="px-3 py-2 text-slate-900">COST STRUCTURE / CASH OUT</td>
+                                            <td class="px-3 py-2 text-right text-slate-900 font-black">Rp {{ number_format($project->cashflows->sum('cash_out'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-right text-slate-900 font-bold">Rp {{ number_format($cf->cash_out, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-700 pl-6">Biaya Mitra Pelaksana (Exclude PPN)</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('biaya_mitra'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->biaya_mitra, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+
+                                        {{-- SECTION 4: BEBAN LAINNYA --}}
+                                        <tr class="bg-slate-100 font-bold border-t border-slate-300">
+                                            <td class="px-3 py-2 text-slate-800" colspan="{{ count($project->cashflows) + 2 }}">BEBAN LAINNYA</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Fee Fasilitas Jaminan</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('fee_jaminan'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->fee_jaminan, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Admin Fasilitas Jaminan</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('admin_jaminan'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->admin_jaminan, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Construction Assurance Risk ( CAR)</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('car'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->car, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Iuran Jasa Konstruksi</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('iuran_jasa'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->iuran_jasa, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Biaya Pengawasan</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('biaya_pengawasan'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->biaya_pengawasan, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">BOP Project</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('bop_project'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->bop_project, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+
+                                        {{-- SECTION 5: CALCULATED FINANCING & CASH FLOW --}}
+                                        <tr class="bg-slate-800 text-white font-bold">
+                                            <td class="px-3 py-2">GROSS MARGIN / EBIT</td>
+                                            <td class="px-3 py-2 text-right font-black bg-slate-900 text-white">Rp {{ number_format($project->cashflows->sum('gross_margin'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-right font-bold">Rp {{ number_format($cf->gross_margin, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Pengurangan pph 23</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('pph'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->pph, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-slate-100 font-semibold">
+                                            <td class="px-3 py-1.5 text-slate-700" colspan="{{ count($project->cashflows) + 2 }}">PPn yang harus dibayarkan</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">PPn Keluaran</td>
+                                            <td class="px-3 py-1.5 text-right">Rp {{ number_format($project->cashflows->sum('ppn_keluaran'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->ppn_keluaran, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">PPn Masukan</td>
+                                            <td class="px-3 py-1.5 text-right">Rp {{ number_format($project->cashflows->sum('ppn_masukan'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->ppn_masukan, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-purple-50 font-semibold">
+                                            <td class="px-3 py-1.5 text-purple-900 pl-6">Kredit PPn</td>
+                                            <td class="px-3 py-1.5 text-right text-purple-900">Rp {{ number_format($project->cashflows->sum('kredit_ppn'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right text-purple-900">Rp {{ number_format($cf->kredit_ppn, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-emerald-100 font-bold border-t border-b border-slate-300">
+                                            <td class="px-3 py-2 text-emerald-950">GROSS MARGIN + PPH</td>
+                                            <td class="px-3 py-2 text-right text-emerald-950 font-black bg-emerald-200">Rp {{ number_format($project->cashflows->sum('gross_margin') - $project->cashflows->sum('pph'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-right text-emerald-950 font-bold">Rp {{ number_format($cf->gross_margin - $cf->pph, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Penarikan Pinjaman</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('penarikan_pinjaman'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->penarikan_pinjaman, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Pembayaran Pokok</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('pembayaran_pokok'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->pembayaran_pokok, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Biaya Provisi</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('biaya_provisi'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->biaya_provisi, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr>
+                                            <td class="px-3 py-1.5 text-slate-600 pl-6">Beban Bunga</td>
+                                            <td class="px-3 py-1.5 text-right font-semibold">Rp {{ number_format($project->cashflows->sum('beban_bunga'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-1.5 text-right">Rp {{ number_format($cf->beban_bunga, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-indigo-100 font-bold border-t-2 border-slate-500">
+                                            <td class="px-3 py-2 text-indigo-900">CASH MARGIN</td>
+                                            <td class="px-3 py-2 text-right text-indigo-900 font-black">Rp {{ number_format($project->cashflows->sum('cash_margin'), 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2 text-right text-indigo-900">Rp {{ number_format($cf->cash_margin, 0, ',', '.') }}</td>
+                                            @endforeach
+                                        </tr>
+                                        <tr class="bg-slate-900 text-white font-bold border-t-2 border-slate-900">
+                                            <td class="px-3 py-2.5">CASH FLOW KUMULATIF</td>
+                                            <td class="px-3 py-2.5 text-right font-black text-yellow-300">Rp {{ number_format($project->cashflows->last()->cash_flow_kumulatif ?? 0, 0, ',', '.') }}</td>
+                                            @foreach($project->cashflows as $cf)
+                                                <td class="px-3 py-2.5 text-right {{ $cf->cash_flow_kumulatif < 0 ? 'text-red-400 font-extrabold' : 'text-emerald-400' }}">
+                                                    Rp {{ number_format($cf->cash_flow_kumulatif, 0, ',', '.') }}
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-6 text-center">
+                                <p class="text-sm text-slate-600">Belum ada data cashflow. Klik <strong>Edit Proyek</strong> untuk mengatur persentase TOP.</p>
+                            </div>
+                        @endif
+                    </div>
             </div>
         </div>
     </div>

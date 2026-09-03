@@ -75,10 +75,21 @@ class Project extends Model
         return $this->hasMany(GanttSchedule::class);
     }
 
+    public function cashflows(): HasMany
+    {
+        return $this->hasMany(ProjectCashflow::class)->orderBy('month_index');
+    }
+
     // ── Computed Helpers ──────────────────────────────
+
+    // ── Computed Helpers (Derived from CASHFLOW PROJECT as Primary Source) ────
 
     public function getTotalRevenueAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && ($cfSum = (float) $this->cashflows()->sum('cash_in')) > 0) {
+            return $cfSum;
+        }
+
         if ($this->revenues()->count() > 0) {
             return (float) $this->revenues()->sum('amount');
         }
@@ -93,6 +104,10 @@ class Project extends Model
 
     public function getTotalCostAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && ($cfSum = (float) $this->cashflows()->sum('cash_out')) > 0) {
+            return $cfSum;
+        }
+
         $costMitra = $this->costStructure->biaya_mitra_pelaksana ?? 0;
         $totalBeban = $this->beban()->sum('amount');
 
@@ -105,10 +120,14 @@ class Project extends Model
         return $this->gross_margin;
     }
 
-    // --- NEW KELAYAKAN ATTRIBUTES ---
+    // --- KELAYAKAN ATTRIBUTES (PULLED FROM CASHFLOW PROJECT) ---
 
     public function getGrossMarginAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && $this->cashflows()->sum('cash_in') > 0) {
+            return (float) $this->cashflows()->sum('gross_margin');
+        }
+
         return $this->total_revenue - $this->total_cost;
     }
 
@@ -120,6 +139,10 @@ class Project extends Model
 
     public function getTotalPphAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && $this->cashflows()->sum('cash_in') > 0) {
+            return (float) $this->cashflows()->sum('pph');
+        }
+
         return (float) $this->pajak()
             ->where(function($query) {
                 $query->where('name', 'like', '%PPh%')
@@ -140,12 +163,20 @@ class Project extends Model
 
     public function getProvisiAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && $this->cashflows()->sum('cash_in') > 0) {
+            return (float) $this->cashflows()->sum('biaya_provisi');
+        }
+
         return (float) $this->pinjaman()
             ->where('name', 'like', '%Provisi%')->sum('amount');
     }
 
     public function getBungaPinjamanAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && $this->cashflows()->sum('cash_in') > 0) {
+            return (float) $this->cashflows()->sum('beban_bunga');
+        }
+
         return (float) $this->pinjaman()
             ->where('name', 'like', '%Bunga%')->sum('amount');
     }
@@ -163,6 +194,10 @@ class Project extends Model
 
     public function getKreditPpnAttribute(): float
     {
+        if ($this->cashflows()->count() > 0 && $this->cashflows()->sum('cash_in') > 0) {
+            return (float) $this->cashflows()->sum('kredit_ppn');
+        }
+
         $ppnKeluaran = (float) $this->pajak()->where('name', 'like', '%Keluaran%')->sum('amount');
         $ppnMasukan = (float) $this->pajak()->where('name', 'like', '%Masukan%')->sum('amount');
         return $ppnKeluaran - $ppnMasukan;
@@ -175,8 +210,13 @@ class Project extends Model
 
     public function getRevenueInclPpnAttribute(): float
     {
-        $ppnKeluaran = (float) $this->pajak()->where('name', 'like', '%Keluaran%')->sum('amount');
+        $ppnKeluaran = $this->cashflows()->count() > 0 ? (float) $this->cashflows()->sum('ppn_keluaran') : (float) $this->pajak()->where('name', 'like', '%Keluaran%')->sum('amount');
         return $this->total_revenue + $ppnKeluaran;
+    }
+
+    public function getHasCfNegatifAttribute(): bool
+    {
+        return $this->cashflows()->where('cash_flow_kumulatif', '<', 0)->exists();
     }
 
     public function getKelayakanAttribute(): string
@@ -187,7 +227,30 @@ class Project extends Model
             return 'N/A';
         }
 
-        return $this->net_income_percentage > $threshold ? 'Layak' : 'Tidak Layak';
+        if ($this->has_cf_negatif) {
+            return 'Tidak Layak';
+        }
+
+        return $this->net_income_percentage >= $threshold ? 'Layak' : 'Tidak Layak';
+    }
+
+    public function getKesimpulanKelayakanDetailAttribute(): string
+    {
+        $threshold = (float) GlobalSetting::getValue('feasibility_threshold', 10.89);
+
+        if ($this->total_revenue <= 0) {
+            return 'Belum ada data revenue';
+        }
+
+        if ($this->has_cf_negatif) {
+            return 'Tidak Layak dengan Terdapat CF Negatif';
+        }
+
+        if ($this->net_income_percentage < $threshold) {
+            return 'Tidak Layak dengan Net Income dibawah treshold (' . number_format($threshold, 2) . '%)';
+        }
+
+        return 'Layak dengan Net Income sebesar ' . number_format($this->net_income_percentage, 2) . '%';
     }
 
     public function getRevenueGsdPercentageAttribute(): float
