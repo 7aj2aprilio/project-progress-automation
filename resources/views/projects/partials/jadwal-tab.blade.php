@@ -35,18 +35,18 @@
             });
         }
     }">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-6">
             <div>
-                <h3 class="text-lg font-bold text-gray-900">Time Schedule (Gantt Chart)</h3>
-                <p class="text-sm text-gray-500 mt-1">
-                    Klik kotak pada kolom minggu untuk menandai jadwal pengerjaan masing-masing item.
-                </p>
+                <h3 class="text-lg font-semibold text-slate-800">Time Schedule (Gantt Chart)</h3>
+                <p class="text-sm text-slate-500">Klik kotak pada kolom minggu untuk menandai jadwal pengerjaan masing-masing item.</p>
             </div>
+            
             @if(count($projectMonths ?? []) > 0)
-                <div class="flex items-center space-x-4 text-xs font-medium text-gray-500">
-                    <div class="flex items-center"><span class="w-4 h-4 bg-emerald-500 rounded-sm mr-2 inline-block"></span> Pekerjaan Utama</div>
-                    <div class="flex items-center"><span class="w-4 h-4 bg-emerald-400 rounded-sm mr-2 inline-block"></span> Sub-Pekerjaan</div>
-                    <div class="flex items-center"><span class="w-4 h-4 bg-indigo-500 rounded-sm mr-2 inline-block"></span> Rincian Item</div>
+                <div class="flex items-center gap-6">
+                    <a href="{{ route('projects.gantt.pdf', $project) }}" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Export PDF
+                    </a>
                 </div>
             @endif
         </div>
@@ -115,7 +115,7 @@
                                                 <td class="border-r border-slate-200 p-0 text-center cursor-pointer transition-all duration-200 group"
                                                     @click="toggleCell({{ $sub->id }}, '{{ $month['key'] }}', {{ $w }})">
                                                     <div class="w-full h-7 flex items-center justify-center transition-all duration-200"
-                                                         :class="ganttData.includes('{{ $sub->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-emerald-400 border-y border-emerald-500' : 'group-hover:bg-slate-200/50'">
+                                                         :class="ganttData.includes('{{ $sub->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-emerald-500 border-y border-emerald-600' : 'group-hover:bg-slate-200/50'">
                                                     </div>
                                                 </td>
                                             @endfor
@@ -133,7 +133,7 @@
                                                     <td class="border-r border-slate-200 p-0 text-center cursor-pointer transition-all duration-200 group"
                                                         @click="toggleCell({{ $item->id }}, '{{ $month['key'] }}', {{ $w }})">
                                                         <div class="w-full h-6 flex items-center justify-center transition-all duration-200"
-                                                             :class="ganttData.includes('{{ $item->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-indigo-500 border-y border-indigo-600' : 'group-hover:bg-slate-200/50'">
+                                                             :class="ganttData.includes('{{ $item->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-emerald-500 border-y border-emerald-600' : 'group-hover:bg-slate-200/50'">
                                                         </div>
                                                     </td>
                                                 @endfor
@@ -151,7 +151,7 @@
                                                 <td class="border-r border-slate-200 p-0 text-center cursor-pointer transition-all duration-200 group"
                                                     @click="toggleCell({{ $sub->id }}, '{{ $month['key'] }}', {{ $w }})">
                                                     <div class="w-full h-6 flex items-center justify-center transition-all duration-200"
-                                                         :class="ganttData.includes('{{ $sub->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-indigo-500 border-y border-indigo-600' : 'group-hover:bg-slate-200/50'">
+                                                         :class="ganttData.includes('{{ $sub->id }}_{{ $month['key'] }}_{{ $w }}') ? 'bg-emerald-500 border-y border-emerald-600' : 'group-hover:bg-slate-200/50'">
                                                     </div>
                                                 </td>
                                             @endfor

@@ -258,4 +258,40 @@ class WeeklyReportController extends Controller
         
         return $pdf->download('Laporan_Mingguan_Ke_' . $weeklyReport->week_number . '_' . $project->name . '.pdf');
     }
+
+    public function exportGanttPdf(Project $project)
+    {
+        $workItems = $project->workItems()->whereNull('parent_id')->with('children.children')->get();
+        
+        $ganttData = $project->ganttSchedules->map(function($s) {
+            return $s->work_item_id . '_' . $s->month_year . '_' . $s->week;
+        })->toArray();
+
+        $projectMonths = [];
+        $startDate = $project->information && $project->information->estimasi_mulai ? \Carbon\Carbon::parse($project->information->estimasi_mulai)->startOfDay() : null;
+        $endDate = $project->information && $project->information->estimasi_selesai ? \Carbon\Carbon::parse($project->information->estimasi_selesai)->endOfDay() : null;
+        
+        if ($startDate && $endDate && $endDate->greaterThanOrEqualTo($startDate)) {
+            $period = \Carbon\CarbonPeriod::create($startDate->copy()->startOfMonth(), '1 month', $endDate->copy()->startOfMonth());
+            foreach ($period as $month) {
+                $firstDay = $month->copy()->startOfMonth();
+                $lastDay = $month->copy()->endOfMonth();
+                $offset = $firstDay->dayOfWeek; 
+                $totalDays = $lastDay->day + $offset;
+                $weeksCount = ceil($totalDays / 7);
+                if ($weeksCount > 0) {
+                    $projectMonths[] = [
+                        'key' => $month->format('Y-m'),
+                        'name' => $month->format('F Y'),
+                        'weeks_count' => $weeksCount,
+                    ];
+                }
+            }
+        }
+
+        $pdf = Pdf::loadView('projects.pdf.gantt', compact('project', 'workItems', 'projectMonths', 'ganttData'));
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('Time_Schedule_' . $project->name . '.pdf');
+    }
 }

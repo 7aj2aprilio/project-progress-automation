@@ -54,8 +54,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/weekly-reports/{weeklyReport}', [App\Http\Controllers\WeeklyReportController::class, 'show'])->name('weekly-reports.show');
     Route::get('/weekly-reports/{weeklyReport}/download-pdf', [App\Http\Controllers\WeeklyReportController::class, 'downloadPdf'])->name('weekly-reports.download-pdf');
         
-    // Gantt Schedule Toggle
+    // Gantt Schedule Toggle & Export
     Route::post('/projects/{project}/toggle-gantt', [App\Http\Controllers\ProjectController::class, 'toggleGantt'])->name('projects.toggle-gantt');
+    Route::get('/projects/{project}/gantt/pdf', [App\Http\Controllers\WeeklyReportController::class, 'exportGanttPdf'])->name('projects.gantt.pdf');
 
     // User management (admin only)
     Route::middleware('role:admin')->group(function () {
