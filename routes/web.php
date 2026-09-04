@@ -41,6 +41,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/projects/{project}/work-items', [App\Http\Controllers\WorkItemController::class, 'store'])->name('work-items.store');
         Route::put('/work-items/{workItem}', [App\Http\Controllers\WorkItemController::class, 'update'])->name('work-items.update');
         Route::delete('/work-items/{workItem}', [App\Http\Controllers\WorkItemController::class, 'destroy'])->name('work-items.destroy');
+
+        // Time Schedule & Kurva S Management
+        Route::post('/projects/{project}/weeks', [App\Http\Controllers\TimeScheduleController::class, 'saveWeeks'])->name('projects.weeks.save');
+        Route::post('/projects/{project}/time-schedule/plans', [App\Http\Controllers\TimeScheduleController::class, 'savePlans'])->name('projects.time-schedule.plans.save');
     });
 
     // Projects — view (all roles)
@@ -58,6 +62,12 @@ Route::middleware('auth')->group(function () {
     // Gantt Schedule Toggle & Export
     Route::post('/projects/{project}/toggle-gantt', [App\Http\Controllers\ProjectController::class, 'toggleGantt'])->name('projects.toggle-gantt');
     Route::get('/projects/{project}/gantt/pdf', [App\Http\Controllers\WeeklyReportController::class, 'exportGanttPdf'])->name('projects.gantt.pdf');
+
+    // Time Schedule & Kurva S Export PDF
+    Route::get('/projects/{project}/time-schedule/pdf', [App\Http\Controllers\TimeScheduleController::class, 'exportPdf'])->name('projects.time-schedule.pdf');
+
+    // About & Panduan Penggunaan (All roles)
+    Route::get('/about', [App\Http\Controllers\AboutController::class, 'index'])->name('about');
 
     // User management (admin only)
     Route::middleware('role:admin')->group(function () {

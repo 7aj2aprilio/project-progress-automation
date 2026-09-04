@@ -23,17 +23,51 @@ class WeeklyReportController extends Controller
             'boq' => '1. Rincian Pekerjaan (BoQ)',
             'weekly_reports' => '2. Laporan Mingguan',
             'jadwal' => '3. Time Schedule (Gantt Chart)',
+            'time_schedule' => '4. Time Schedule & Kurva S',
         ];
 
         // Eager load work items for hierarchical display
         $workItems = $project->workItems()->whereNull('parent_id')->with('children.children')->get();
 
-        // Eager load weeklyReports and their progresses
-        $project->load(['weeklyReports' => function($query) {
-            $query->orderBy('week_number', 'asc');
-        }, 'weeklyReports.progresses', 'ganttSchedules']);
+        // Eager load weeklyReports, progresses, weeks, and plans
+        $project->load([
+            'weeklyReports' => function($query) {
+                $query->orderBy('week_number', 'asc');
+            }, 
+            'weeklyReports.progresses.workItem', 
+            'ganttSchedules',
+            'weeks',
+            'timeSchedulePlans'
+        ]);
 
-        // Format gantt schedules for easy checking in view
+        $weeks = $project->weeks;
+        $plans = $project->timeSchedulePlans->keyBy(fn($p) => $p->work_item_id . '_' . $p->project_week_id);
+
+        // Build realisasi map: [work_item_id][week_id] => calculated bobot %
+        $realisasiMap = [];
+        $weeklyReportsByWeek = $project->weeklyReports->keyBy('week_number');
+        foreach ($weeks as $w) {
+            $rep = $weeklyReportsByWeek->get($w->week_number);
+            if ($rep) {
+                foreach ($rep->progresses as $prog) {
+                    if ($prog->workItem) {
+                        $realisasiMap[$prog->work_item_id][$w->id] = ($prog->progress_percentage * $prog->workItem->base_bobot) / 100;
+                    }
+                }
+            }
+        }
+
+        // Build hierarchy structure for Time Schedule summing
+        $timeScheduleHierarchy = $workItems->map(function($m) {
+            return [
+                'id' => $m->id,
+                'subs' => $m->children->where('type', 'sub')->map(fn($s) => [
+                    'id' => $s->id,
+                    'items' => $s->children->pluck('id')->values()->toArray(),
+                ])->values()->toArray(),
+                'directItems' => $m->children->where('type', '!=', 'sub')->pluck('id')->values()->toArray(),
+            ];
+        })->values()->toArray();
         $ganttData = $project->ganttSchedules->map(function($s) {
             return $s->work_item_id . '_' . $s->month_year . '_' . $s->week;
         })->toArray();
@@ -68,7 +102,9 @@ class WeeklyReportController extends Controller
             }
         }
 
-        return view('weekly_reports.project_dashboard', compact('project', 'tabs', 'workItems', 'projectMonths', 'ganttData'));
+        return view('weekly_reports.project_dashboard', compact(
+            'project', 'tabs', 'workItems', 'projectMonths', 'ganttData', 'weeks', 'plans', 'realisasiMap', 'timeScheduleHierarchy'
+        ));
     }
 
     public function create(Project $project)

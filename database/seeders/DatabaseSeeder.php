@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             GlobalSettingSeeder::class,
             ProjectSeeder::class,
+            RABSeeder::class,
         ]);
     }
 }

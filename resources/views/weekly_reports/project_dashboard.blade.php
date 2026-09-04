@@ -33,6 +33,11 @@
                                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
                                 3. Time Schedule (Gantt)
                             </button>
+                            <button @click="activeTab = 'time_schedule'"
+                                    :class="activeTab === 'time_schedule' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
+                                4. Time Schedule & Kurva S
+                            </button>
                         </nav>
                     </div>
 
@@ -41,6 +46,8 @@
                         @include('projects.partials.boq-tab')
                         @include('projects.partials.weekly-reports-tab')
                         @include('projects.partials.jadwal-tab')
+                        @include('projects.partials.time-schedule-tab')
+                        @include('projects.partials.modal-manage-weeks')
                     </div>
 
                 </div>

@@ -33,6 +33,17 @@
             Progres & Laporan
         </a>
 
+        {{-- Tentang & Panduan --}}
+        <a href="{{ route('about') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150
+                  {{ request()->routeIs('about') ? 'bg-primary-700 text-white' : 'text-primary-100 hover:bg-primary-800 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Tentang & Panduan
+        </a>
+
         @if(auth()->user()->isAdmin())
             <p class="px-3 pt-4 text-xs font-semibold uppercase tracking-wider text-primary-300 mb-2">Administrasi</p>
 

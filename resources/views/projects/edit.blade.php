@@ -57,11 +57,11 @@
                                 $tabs = [
                                     'informasi' => '1. Informasi & Asumsi',
                                     'cashflow' => '2. Cashflow Project (Input Utama)',
-                                    'cost_beban' => '3. Cost & Beban (Auto)',
-                                    'revenue' => '4. Revenue (Auto)',
-                                    'jaminan' => '5. Jaminan (Auto)',
-                                    'pajak' => '6. Pajak (Auto)',
-                                    'pinjaman' => '7. Pinjaman (Auto)',
+                                    'cost_beban' => '3. Cost & Beban',
+                                    'revenue' => '4. Revenue',
+                                    'jaminan' => '5. Jaminan',
+                                    'pajak' => '6. Pajak',
+                                    'pinjaman' => '7. Pinjaman',
                                 ];
                             @endphp
                             @foreach($tabs as $key => $label)
@@ -442,7 +442,7 @@
                                                          <input type="number" step="1"
                                                                 name="cashflows[{{ $cf->month_index }}][jasa_konstruksi]"
                                                                 value="{{ old('cashflows.'.$cf->month_index.'.jasa_konstruksi', $cf->jasa_konstruksi ? round($cf->jasa_konstruksi) : '') }}"
-                                                                placeholder="Auto / Nominal"
+                                                                placeholder="0"
                                                                 class="w-full text-right text-xs rounded border-slate-300 py-1">
                                                      </td>
                                                  @endforeach
@@ -455,7 +455,7 @@
                                                          <input type="number" step="1"
                                                                 name="cashflows[{{ $cf->month_index }}][management_fee]"
                                                                 value="{{ old('cashflows.'.$cf->month_index.'.management_fee', $cf->management_fee ? round($cf->management_fee) : '') }}"
-                                                                placeholder="Auto / Nominal"
+                                                                placeholder="0"
                                                                 class="w-full text-right text-xs rounded border-slate-300 py-1">
                                                      </td>
                                                  @endforeach
@@ -477,7 +477,7 @@
                                                          <input type="number" step="1"
                                                                 name="cashflows[{{ $cf->month_index }}][biaya_mitra]"
                                                                 value="{{ old('cashflows.'.$cf->month_index.'.biaya_mitra', $cf->biaya_mitra ? round($cf->biaya_mitra) : '') }}"
-                                                                placeholder="Auto / Nominal"
+                                                                placeholder="0"
                                                                 class="w-full text-right text-xs rounded border-slate-300 py-1">
                                                      </td>
                                                  @endforeach

@@ -39,6 +39,11 @@ class WorkItem extends Model
         return $this->hasMany(GanttSchedule::class);
     }
 
+    public function timeSchedulePlans(): HasMany
+    {
+        return $this->hasMany(TimeSchedulePlan::class);
+    }
+
     public function getBaseBobotAttribute()
     {
         // Total project price is sum of all main items

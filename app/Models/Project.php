@@ -80,6 +80,16 @@ class Project extends Model
         return $this->hasMany(ProjectCashflow::class)->orderBy('month_index');
     }
 
+    public function weeks(): HasMany
+    {
+        return $this->hasMany(ProjectWeek::class)->orderBy('week_number');
+    }
+
+    public function timeSchedulePlans(): HasMany
+    {
+        return $this->hasMany(TimeSchedulePlan::class);
+    }
+
     // ── Computed Helpers ──────────────────────────────
 
     // ── Computed Helpers (Derived from CASHFLOW PROJECT as Primary Source) ────
