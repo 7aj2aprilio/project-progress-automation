@@ -44,10 +44,12 @@ class ProjectCalculator
 
     protected function calculateLoans(Project $project): void
     {
-        $costMitra = $project->costStructure->biaya_mitra_pelaksana ?? 0;
+        $costMitra = (float) ($project->costStructure->biaya_mitra_pelaksana ?? 0);
+        $totalRevenue = (float) $project->total_revenue;
+        $loanBase = ($totalRevenue > 0) ? $totalRevenue : $costMitra;
         
         // Loan rate is per-project, defaults to 1.65% if not set
-        $loanRate = $project->information->loan_rate ?? 1.65;
+        $loanRate = (float) ($project->information->loan_rate ?? 1.65);
         
         // Other rates are global
         $provisiRate = (float) GlobalSetting::getValue('provisi_rate', 1);
@@ -57,7 +59,7 @@ class ProjectCalculator
         foreach ($project->pinjaman as $pinj) {
             if (stripos($pinj->name, 'Besar Pinjaman') !== false) {
                 if (! $pinj->is_manual) {
-                    $pinj->amount = $costMitra * ($loanRate / 100);
+                    $pinj->amount = round($loanBase * ($loanRate / 100));
                     $pinj->save();
                 }
                 $besarPinjamanValue = (float) $pinj->amount;
@@ -69,14 +71,14 @@ class ProjectCalculator
         foreach ($project->pinjaman as $pinj) {
             if (stripos($pinj->name, 'Biaya Provisi') !== false) {
                 if (! $pinj->is_manual) {
-                    $pinj->amount = $besarPinjamanValue * ($provisiRate / 100);
+                    $pinj->amount = round($besarPinjamanValue * ($provisiRate / 100));
                     $pinj->save();
                 }
             } elseif (stripos($pinj->name, 'Bunga Pinjaman') !== false) {
                 if (! $pinj->is_manual) {
                     $sukuBungaPertahun = (float) GlobalSetting::getValue('suku_bunga_pertahun', 10.89);
                     $monthlyRate = ($sukuBungaPertahun / 12) / 100;
-                    $pinj->amount = $monthlyRate * 1 * $besarPinjamanValue;
+                    $pinj->amount = round($monthlyRate * 1 * $besarPinjamanValue);
                     $pinj->save();
                 }
             }
@@ -98,20 +100,20 @@ class ProjectCalculator
             
             if (str_contains($name, 'pph') || str_contains($name, 'pasal 23')) {
                 // PPh Pasal 23 = Total Revenue × PPh rate (2.65%)
-                $tax->amount = $totalRevenue * ($pphRate / 100);
+                $tax->amount = round($totalRevenue * ($pphRate / 100));
                 $tax->save();
             } elseif (str_contains($name, 'keluaran')) {
                 // PPN Keluaran = 11/12 * PPN rate * Total Revenue
-                $tax->amount = (11 / 12) * ($ppnRate / 100) * $totalRevenue;
+                $tax->amount = round((11 / 12) * ($ppnRate / 100) * $totalRevenue);
                 $tax->save();
             } elseif (str_contains($name, 'masukan')) {
                 // PPN Masukan = 11/12 * PPN rate * Biaya Mitra
-                $tax->amount = (11 / 12) * ($ppnRate / 100) * $costMitra;
+                $tax->amount = round((11 / 12) * ($ppnRate / 100) * $costMitra);
                 $tax->save();
             } elseif (str_contains($name, 'kredit')) {
                 // Kredit PPN = PPN Keluaran - PPN Masukan
-                $ppnKel = (11 / 12) * ($ppnRate / 100) * $totalRevenue;
-                $ppnMas = (11 / 12) * ($ppnRate / 100) * $costMitra;
+                $ppnKel = round((11 / 12) * ($ppnRate / 100) * $totalRevenue);
+                $ppnMas = round((11 / 12) * ($ppnRate / 100) * $costMitra);
                 $tax->amount = $ppnKel - $ppnMas;
                 $tax->save();
             }

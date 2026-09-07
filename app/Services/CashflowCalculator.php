@@ -41,21 +41,12 @@ class CashflowCalculator
         // Get existing cashflows mapped by month_index
         $existing = $project->cashflows->keyBy('month_index');
         
-        $manualCostMitraSum = $existing->sum('biaya_mitra');
+        $manualCostMitraSum = (float) $existing->sum('biaya_mitra');
+        $manualJasaSum = (float) $existing->sum('jasa_konstruksi');
+        $manualFeeSum = (float) $existing->sum('management_fee');
 
-        // Revenue & Cost bases (using exact float precision matching Excel)
-        // IMPORTANT: Do NOT use $project->total_revenue here, as it depends on cashflows sum 
-        // which creates an infinite inflation loop. Read from original source!
-        $info = $project->information;
-        if ($info && $info->total_revenue > 0) {
-            $totalRev = (float) $info->total_revenue;
-        } else {
-            $totalRev = (float) $project->revenues()->where('is_manual', 1)->sum('amount');
-        }
+        // Cost Mitra base
         $costMitraDb = (float) ($project->costStructure->biaya_mitra_pelaksana ?? 0);
-
-        // If manual entries exist in cashflow, use them to compute the base cost, 
-        // since they represent the true sum that will be synced to CostStructure later.
         if ($manualCostMitraSum > 0) {
             $baseCostMitra = $manualCostMitraSum;
         } elseif ($costMitraDb > 0 && abs($costMitraDb - 203967799) <= 1) {
@@ -66,31 +57,39 @@ class CashflowCalculator
             $baseCostMitra = 0;
         }
 
-        if ($totalRev > 0 && $baseCostMitra > 0) {
+        // Revenue bases
+        $info = $project->information;
+        $infoTotalRev = ($info && $info->total_revenue > 0) ? (float) $info->total_revenue : 0;
+        $revModuleSum = (float) $project->revenues()->sum('amount');
+        $feeFromRevModule = (float) $project->revenues()->where('name', 'like', '%Management Fee%')->sum('amount');
+        $jasaFromRevModule = (float) $project->revenues()->where('name', 'like', '%Jasa%')->sum('amount');
+
+        // Determine Base Fee Revenue and Base Jasa Revenue
+        $baseFeeRevenue = 0;
+        if ($manualFeeSum > 0) {
+            $baseFeeRevenue = $manualFeeSum;
+        } elseif ($feeFromRevModule > 0) {
+            $baseFeeRevenue = $feeFromRevModule;
+        } elseif ($infoTotalRev > 0 && $baseCostMitra > 0 && $infoTotalRev > $baseCostMitra) {
+            $baseFeeRevenue = $infoTotalRev - $baseCostMitra;
+        } elseif ($revModuleSum > 0 && $baseCostMitra > 0 && $revModuleSum > $baseCostMitra) {
+            $baseFeeRevenue = $revModuleSum - $baseCostMitra;
+        }
+
+        $baseJasaRevenue = 0;
+        if ($manualJasaSum > 0) {
+            $baseJasaRevenue = $manualJasaSum;
+        } elseif ($jasaFromRevModule > 0) {
+            $baseJasaRevenue = $jasaFromRevModule;
+        } elseif ($baseCostMitra > 0) {
             $baseJasaRevenue = $baseCostMitra;
-            $baseFeeRevenue = $totalRev - $baseJasaRevenue;
-        } else {
-            $baseJasaRevenue = $totalRev;
-            $baseFeeRevenue = 0;
+        } elseif ($infoTotalRev > 0) {
+            $baseJasaRevenue = max(0, $infoTotalRev - $baseFeeRevenue);
+        } elseif ($revModuleSum > 0) {
+            $baseJasaRevenue = max(0, $revModuleSum - $baseFeeRevenue);
         }
-        
-        // --- Calculate remaining pools for distribution to prevent double-counting ---
-        $manualJasaSum = 0;
-        $manualFeeSum = 0;
-        $manualCostSum = 0;
-        foreach ($existing as $row) {
-            if ((float)$row->pct_top_pelanggan <= 0) {
-                $manualJasaSum += (float) $row->jasa_konstruksi;
-                $manualFeeSum += (float) $row->management_fee;
-            }
-            if ((float)$row->pct_top_mitra <= 0) {
-                $manualCostSum += (float) $row->biaya_mitra;
-            }
-        }
-        
-        $remainingJasaRevenue = max(0, $baseJasaRevenue - $manualJasaSum);
-        $remainingFeeRevenue = max(0, $baseFeeRevenue - $manualFeeSum);
-        $remainingCostMitra = max(0, $baseCostMitra - $manualCostSum);
+
+        $totalRev = $baseJasaRevenue + $baseFeeRevenue;
 
         // Beban items
         $feeJaminan = 0;
@@ -118,9 +117,10 @@ class CashflowCalculator
         $provisiRate = (float) GlobalSetting::getValue('provisi_rate', 1);
         $monthlyInterestRate = ($sukuBungaPertahun / 12) / 100;
 
-        // Loan Rate (1.65% of Total Cost Mitra)
+        // Loan Rate (1.65% of Total Revenue / Nilai Proyek)
         $loanRate = (float) ($info->loan_rate ?? 1.65);
-        $besarPinjamanTotal = $baseCostMitra * ($loanRate / 100);
+        $loanBase = ($totalRev > 0) ? $totalRev : $baseCostMitra;
+        $besarPinjamanTotal = $loanBase * ($loanRate / 100);
 
         // Ensure rows exist for month 0 through durationMonths
         $rowsData = [];
@@ -151,9 +151,11 @@ class CashflowCalculator
                 $feeInput = (float) $existingRow->management_fee;
                 $costInput = (float) $existingRow->biaya_mitra;
 
-                $jasaBln = ($pctTopPelanggan > 0) ? (($pctTopPelanggan / 100) * $remainingJasaRevenue) : $jasaInput;
-                $feeBln = ($pctTopPelanggan > 0) ? (($pctTopPelanggan / 100) * $remainingFeeRevenue) : $feeInput;
-                $costMitraBln = ($pctTopMitra > 0) ? (($pctTopMitra / 100) * $remainingCostMitra) : $costInput;
+                // Priority: User's explicit manual nominal input is preserved;
+                // Otherwise calculated from % TOP distribution and base pool.
+                $jasaBln = ($jasaInput > 0) ? $jasaInput : (($pctTopPelanggan > 0) ? (($pctTopPelanggan / 100) * $baseJasaRevenue) : 0);
+                $feeBln = ($feeInput > 0) ? $feeInput : (($pctTopPelanggan > 0) ? (($pctTopPelanggan / 100) * $baseFeeRevenue) : 0);
+                $costMitraBln = ($costInput > 0) ? $costInput : (($pctTopMitra > 0) ? (($pctTopMitra / 100) * $baseCostMitra) : 0);
 
                 $feeJamBln = (float) $existingRow->fee_jaminan;
                 $adminJamBln = (float) $existingRow->admin_jaminan;
@@ -166,9 +168,9 @@ class CashflowCalculator
                 $pctTopPelanggan = 0;
                 $pctTopMitra = 0;
                 
-                $jasaBln = ($pctTopPelanggan / 100) * $remainingJasaRevenue;
-                $feeBln = ($pctTopPelanggan / 100) * $remainingFeeRevenue;
-                $costMitraBln = ($pctTopMitra / 100) * $remainingCostMitra;
+                $jasaBln = ($pctTopPelanggan / 100) * $baseJasaRevenue;
+                $feeBln = ($pctTopPelanggan / 100) * $baseFeeRevenue;
+                $costMitraBln = ($pctTopMitra / 100) * $baseCostMitra;
                 $feeJamBln = ($m == 0) ? $feeJaminan : 0;
                 $adminJamBln = ($m == 0) ? $adminJaminan : 0;
                 $carBln = ($m == 0) ? $carAssurance : 0;
@@ -182,41 +184,51 @@ class CashflowCalculator
             if ($pctProgress > 100) $pctProgress = 100;
 
             // Calculations per month
-            $cashIn = $jasaBln + $feeBln;
-            $bebanLainBln = $feeJamBln + $adminJamBln + $carBln + $iuranBln + $pengawasanBln + $bopBln;
-            $cashOut = $costMitraBln + $bebanLainBln;
+            $cashIn = round($jasaBln + $feeBln);
+            $bebanLainBln = round($feeJamBln + $adminJamBln + $carBln + $iuranBln + $pengawasanBln + $bopBln);
+            $cashOut = round($costMitraBln + $bebanLainBln);
             $grossMargin = $cashIn - $cashOut;
 
             // Taxes
-            $pph = ($pphRate / 100) * $cashIn;
-            $ppnKeluaran = (11 / 12) * ($ppnRate / 100) * $cashIn;
-            $ppnMasukan = (11 / 12) * ($ppnRate / 100) * $costMitraBln;
+            $pph = round(($pphRate / 100) * $cashIn);
+            $ppnKeluaran = round((11 / 12) * ($ppnRate / 100) * $cashIn);
+            $ppnMasukan = round((11 / 12) * ($ppnRate / 100) * $costMitraBln);
             $kreditPpn = $ppnKeluaran - $ppnMasukan;
 
-            // Loan Amortization Logic
+            // Loan Amortization Logic (Tracking unrounded floats for exact Excel accounting precision)
             $penarikanPinjaman = 0;
             $pembayaranPokok = 0;
             $biayaProvisi = 0;
             $bebanBunga = 0;
+            $rawCashMargin = 0;
 
             if ($m == 0) {
                 if ($besarPinjamanTotal > 0) {
-                    $penarikanPinjaman = $besarPinjamanTotal;
-                    $outstandingLoan = $penarikanPinjaman;
-                    $biayaProvisi = ($provisiRate / 100) * $penarikanPinjaman;
+                    $rawPenarikan = $besarPinjamanTotal;
+                    $rawProvisi = ($provisiRate / 100) * $rawPenarikan;
+                    $penarikanPinjaman = round($rawPenarikan);
+                    $outstandingLoan = $rawPenarikan;
+                    $biayaProvisi = round($rawProvisi);
+                    $rawCashMargin = $rawPenarikan - $rawProvisi;
                 }
             } else {
+                $rawGrossMargin = ($jasaBln + $feeBln) - ($costMitraBln + $feeJamBln + $adminJamBln + $carBln + $iuranBln + $pengawasanBln + $bopBln);
+                $rawPph = ($pphRate / 100) * ($jasaBln + $feeBln);
                 if ($outstandingLoan > 0 && ($pctTopPelanggan > 0 || $jasaBln > 0 || $m == 1)) {
-                    $pembayaranPokok = $outstandingLoan;
-                    $bebanBunga = $monthlyInterestRate * $outstandingLoan;
+                    $rawPokok = $outstandingLoan;
+                    $rawBunga = $monthlyInterestRate * $outstandingLoan;
+                    $pembayaranPokok = round($rawPokok);
+                    $bebanBunga = round($rawBunga);
+                    $rawCashMargin = $rawGrossMargin - $rawPph - $rawPokok - $rawBunga;
                     $outstandingLoan = 0;
                 } else {
-                    $pembayaranPokok = 0;
-                    $bebanBunga = $outstandingLoan > 0 ? ($monthlyInterestRate * $outstandingLoan) : 0;
+                    $rawBunga = $outstandingLoan > 0 ? ($monthlyInterestRate * $outstandingLoan) : 0;
+                    $bebanBunga = round($rawBunga);
+                    $rawCashMargin = $rawGrossMargin - $rawPph - $rawBunga;
                 }
             }
 
-            $cashMargin = $grossMargin - $pph + $penarikanPinjaman - $pembayaranPokok - $biayaProvisi - $bebanBunga;
+            $cashMargin = round($rawCashMargin);
             $cumulativeCashflow += $cashMargin;
 
             // Save or Update Record
@@ -341,7 +353,8 @@ class CashflowCalculator
         }
 
         // Sync Pinjaman (Preserve custom manual entries, replace standard auto entries)
-        $totBesarPinjaman = $totalCostMitra * ($loanRate / 100);
+        $loanBase = ($totalJasa + $totalFeeGsd > 0) ? ($totalJasa + $totalFeeGsd) : $totalCostMitra;
+        $totBesarPinjaman = round($loanBase * ($loanRate / 100));
         $totProvisi = $cfCollection->sum('biaya_provisi');
         $totBunga = $cfCollection->sum('beban_bunga');
         if (($totBesarPinjaman + $totProvisi + $totBunga) > 0) {

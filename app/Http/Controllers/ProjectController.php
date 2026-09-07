@@ -157,16 +157,18 @@ class ProjectController extends Controller
             }
 
             // Revenues
-            $project->revenues()->delete();
-            if ($request->input('revenue_mode') !== 'total') {
-                $revenueData = $request->input('revenues', []);
-                foreach ($revenueData as $r) {
-                    if (!empty($r['name'])) {
-                        $project->revenues()->create([
-                            'name' => $r['name'],
-                            'amount' => $r['amount'] ?: 0,
-                            'is_manual' => !$isStandard($r['name']),
-                        ]);
+            if ($request->has('revenues') || $request->input('revenue_mode') === 'total') {
+                $project->revenues()->delete();
+                if ($request->input('revenue_mode') !== 'total') {
+                    $revenueData = $request->input('revenues', []);
+                    foreach ($revenueData as $r) {
+                        if (!empty($r['name'])) {
+                            $project->revenues()->create([
+                                'name' => $r['name'],
+                                'amount' => $r['amount'] ?: 0,
+                                'is_manual' => 1,
+                            ]);
+                        }
                     }
                 }
             }
@@ -201,17 +203,17 @@ class ProjectController extends Controller
             $cashflowInputs = $request->input('cashflows', []);
             foreach ($cashflowInputs as $mIndex => $cfData) {
                 $project->cashflows()->where('month_index', $mIndex)->update([
-                    'pct_top_pelanggan' => $cfData['pct_top_pelanggan'] ?? 0,
-                    'pct_top_mitra' => $cfData['pct_top_mitra'] ?? 0,
-                    'jasa_konstruksi' => $cfData['jasa_konstruksi'] ?? 0,
-                    'management_fee' => $cfData['management_fee'] ?? 0,
-                    'biaya_mitra' => $cfData['biaya_mitra'] ?? 0,
-                    'fee_jaminan' => $cfData['fee_jaminan'] ?? 0,
-                    'admin_jaminan' => $cfData['admin_jaminan'] ?? 0,
-                    'car' => $cfData['car'] ?? 0,
-                    'iuran_jasa' => $cfData['iuran_jasa'] ?? 0,
-                    'biaya_pengawasan' => $cfData['biaya_pengawasan'] ?? 0,
-                    'bop_project' => $cfData['bop_project'] ?? 0,
+                    'pct_top_pelanggan' => (isset($cfData['pct_top_pelanggan']) && $cfData['pct_top_pelanggan'] !== '') ? (float) $cfData['pct_top_pelanggan'] : 0,
+                    'pct_top_mitra' => (isset($cfData['pct_top_mitra']) && $cfData['pct_top_mitra'] !== '') ? (float) $cfData['pct_top_mitra'] : 0,
+                    'jasa_konstruksi' => (isset($cfData['jasa_konstruksi']) && $cfData['jasa_konstruksi'] !== '') ? (float) $cfData['jasa_konstruksi'] : 0,
+                    'management_fee' => (isset($cfData['management_fee']) && $cfData['management_fee'] !== '') ? (float) $cfData['management_fee'] : 0,
+                    'biaya_mitra' => (isset($cfData['biaya_mitra']) && $cfData['biaya_mitra'] !== '') ? (float) $cfData['biaya_mitra'] : 0,
+                    'fee_jaminan' => (isset($cfData['fee_jaminan']) && $cfData['fee_jaminan'] !== '') ? (float) $cfData['fee_jaminan'] : 0,
+                    'admin_jaminan' => (isset($cfData['admin_jaminan']) && $cfData['admin_jaminan'] !== '') ? (float) $cfData['admin_jaminan'] : 0,
+                    'car' => (isset($cfData['car']) && $cfData['car'] !== '') ? (float) $cfData['car'] : 0,
+                    'iuran_jasa' => (isset($cfData['iuran_jasa']) && $cfData['iuran_jasa'] !== '') ? (float) $cfData['iuran_jasa'] : 0,
+                    'biaya_pengawasan' => (isset($cfData['biaya_pengawasan']) && $cfData['biaya_pengawasan'] !== '') ? (float) $cfData['biaya_pengawasan'] : 0,
+                    'bop_project' => (isset($cfData['bop_project']) && $cfData['bop_project'] !== '') ? (float) $cfData['bop_project'] : 0,
                 ]);
             }
 

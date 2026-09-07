@@ -303,7 +303,7 @@
                                 <input type="number" step="0.01" name="information[loan_rate]" value="{{ old('information.loan_rate', $info->loan_rate ? round($info->loan_rate, 2) : '') }}"
                                        placeholder="Contoh: 1.65"
                                        class="w-full md:w-1/2 rounded-lg border-slate-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
-                                <p class="text-xs text-slate-500 mt-1">Digunakan untuk menghitung "Besar Pinjaman" dari "Cost Mitra". Kosong = auto pakai default 1.65%.</p>
+                                <p class="text-xs text-slate-500 mt-1">Digunakan untuk menghitung "Besar Pinjaman" dari Nilai Revenue / Proyek. Kosong = auto pakai default 1.65%.</p>
                                 
                                 <label class="block text-sm font-medium text-slate-700 mb-1 mt-4">Periode Pinjaman (Bulan)</label>
                                 <input type="number" step="1" name="assumption[periode_pinjaman]" value="{{ old('assumption.periode_pinjaman', $asumsi->periode_pinjaman ?? '') }}"
