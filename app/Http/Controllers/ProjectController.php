@@ -268,4 +268,28 @@ class ProjectController extends Controller
             return response()->json(['status' => 'added']);
         }
     }
+
+    /**
+     * Reset/clear all cashflow data for a project and re-generate from scratch.
+     */
+    public function resetCashflow(Project $project)
+    {
+        DB::transaction(function () use ($project) {
+            // Delete all cashflow rows
+            $project->cashflows()->delete();
+
+            // Delete auto-synced child module records (only non-manual entries)
+            $project->revenues()->where('is_manual', 0)->delete();
+            $project->beban()->where('is_manual', 0)->delete();
+            $project->pajak()->where('is_manual', 0)->delete();
+            $project->pinjaman()->where('is_manual', 0)->delete();
+        });
+
+        // Re-generate fresh cashflow from base data
+        $this->calculator->calculate($project->fresh());
+
+        return redirect()->route('projects.edit', $project)
+            ->with('success', 'Data cashflow berhasil dibersihkan dan dihitung ulang dari awal.')
+            ->with('target_tab', 'cashflow');
+    }
 }

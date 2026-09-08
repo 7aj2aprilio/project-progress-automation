@@ -119,7 +119,7 @@ class CashflowCalculator
 
         // Loan Rate (1.65% of Total Revenue / Nilai Proyek)
         $loanRate = (float) ($info->loan_rate ?? 1.65);
-        $loanBase = ($totalRev > 0) ? $totalRev : $baseCostMitra;
+        $loanBase = $baseCostMitra;
         $besarPinjamanTotal = $loanBase * ($loanRate / 100);
 
         // Ensure rows exist for month 0 through durationMonths
@@ -195,40 +195,39 @@ class CashflowCalculator
             $ppnMasukan = round((11 / 12) * ($ppnRate / 100) * $costMitraBln);
             $kreditPpn = $ppnKeluaran - $ppnMasukan;
 
-            // Loan Amortization Logic (Tracking unrounded floats for exact Excel accounting precision)
+            // Loan Amortization Logic
+            // Only activate loans when there are actual cashflow distributions
             $penarikanPinjaman = 0;
             $pembayaranPokok = 0;
             $biayaProvisi = 0;
             $bebanBunga = 0;
-            $rawCashMargin = 0;
 
-            if ($m == 0) {
-                if ($besarPinjamanTotal > 0) {
+            if ($hasCustomDist) {
+                if ($m == 0 && $besarPinjamanTotal > 0) {
+                    // Month 0: Draw loan
                     $rawPenarikan = $besarPinjamanTotal;
                     $rawProvisi = ($provisiRate / 100) * $rawPenarikan;
                     $penarikanPinjaman = round($rawPenarikan);
                     $outstandingLoan = $rawPenarikan;
                     $biayaProvisi = round($rawProvisi);
-                    $rawCashMargin = $rawPenarikan - $rawProvisi;
-                }
-            } else {
-                $rawGrossMargin = ($jasaBln + $feeBln) - ($costMitraBln + $feeJamBln + $adminJamBln + $carBln + $iuranBln + $pengawasanBln + $bopBln);
-                $rawPph = ($pphRate / 100) * ($jasaBln + $feeBln);
-                if ($outstandingLoan > 0 && ($pctTopPelanggan > 0 || $jasaBln > 0 || $m == 1)) {
-                    $rawPokok = $outstandingLoan;
-                    $rawBunga = $monthlyInterestRate * $outstandingLoan;
-                    $pembayaranPokok = round($rawPokok);
-                    $bebanBunga = round($rawBunga);
-                    $rawCashMargin = $rawGrossMargin - $rawPph - $rawPokok - $rawBunga;
-                    $outstandingLoan = 0;
-                } else {
-                    $rawBunga = $outstandingLoan > 0 ? ($monthlyInterestRate * $outstandingLoan) : 0;
-                    $bebanBunga = round($rawBunga);
-                    $rawCashMargin = $rawGrossMargin - $rawPph - $rawBunga;
+                } elseif ($m > 0) {
+                    // Month 1+: Repay loan if outstanding
+                    if ($outstandingLoan > 0 && ($pctTopPelanggan > 0 || $jasaBln > 0 || $m == 1)) {
+                        $rawPokok = $outstandingLoan;
+                        $rawBunga = $monthlyInterestRate * $outstandingLoan;
+                        $pembayaranPokok = round($rawPokok);
+                        $bebanBunga = round($rawBunga);
+                        $outstandingLoan = 0;
+                    } else {
+                        $rawBunga = $outstandingLoan > 0 ? ($monthlyInterestRate * $outstandingLoan) : 0;
+                        $bebanBunga = round($rawBunga);
+                    }
                 }
             }
 
-            $cashMargin = round($rawCashMargin);
+            // Universal Cash Margin formula (works for ALL months):
+            // = grossMargin - pph + penarikan - pokok - provisi - bunga
+            $cashMargin = $grossMargin - $pph + $penarikanPinjaman - $pembayaranPokok - $biayaProvisi - $bebanBunga;
             $cumulativeCashflow += $cashMargin;
 
             // Save or Update Record
@@ -353,7 +352,7 @@ class CashflowCalculator
         }
 
         // Sync Pinjaman (Preserve custom manual entries, replace standard auto entries)
-        $loanBase = ($totalJasa + $totalFeeGsd > 0) ? ($totalJasa + $totalFeeGsd) : $totalCostMitra;
+        $loanBase = $totalCostMitra;
         $totBesarPinjaman = round($loanBase * ($loanRate / 100));
         $totProvisi = $cfCollection->sum('biaya_provisi');
         $totBunga = $cfCollection->sum('beban_bunga');

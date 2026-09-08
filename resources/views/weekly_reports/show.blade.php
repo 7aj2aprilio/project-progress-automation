@@ -26,9 +26,6 @@
                     <button @click="activeTab = 'visual'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'visual' }" class="px-3 py-2 border-b-2 border-transparent font-medium text-sm">
                         Laporan Visual
                     </button>
-                    <button @click="activeTab = 'scurve'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'scurve' }" class="px-3 py-2 border-b-2 border-transparent font-medium text-sm">
-                        Kurva S
-                    </button>
                 </nav>
             </div>
 
@@ -255,14 +252,6 @@
                         @endif
                     </div>
                 </form>
-            </div>
-
-            <!-- Tab S-Curve -->
-            <div x-show="activeTab === 'scurve'" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6" x-cloak>
-                <h3 class="text-lg font-bold mb-4">Kurva S (S-Curve)</h3>
-                <div class="w-full h-96 bg-gray-50 border rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400">[Chart.js Canvas Placeholder]</span>
-                </div>
             </div>
 
         </div>

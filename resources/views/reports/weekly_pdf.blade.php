@@ -278,12 +278,12 @@
             <tr>
                 <td style="border: none; text-align: right;">Rencana Minggu ini</td>
                 <td style="border: none; width: 10px;">=</td>
-                <td style="border: none; text-align: left;">0,00</td>
+                <td style="border: none; text-align: left;">{{ number_format($rencanaMingguIni, 2, ',', '.') }}</td>
             </tr>
             <tr>
                 <td style="border: none; text-align: right; font-weight: bold;">Rencana Kumulatif</td>
                 <td style="border: none;">=</td>
-                <td style="border: none; text-align: left;">0,00</td>
+                <td style="border: none; text-align: left;">{{ number_format($rencanaKumulatif, 2, ',', '.') }}</td>
             </tr>
             <tr>
                 <td style="border: none; text-align: right;">Realisasi Minggu ini</td>
@@ -298,7 +298,10 @@
             <tr>
                 <td style="border: none; text-align: right;">Deviasi</td>
                 <td style="border: none;">=</td>
-                <td style="border: none; text-align: left;">0,00</td>
+                @php $deviasi = $totalBobotSD - $rencanaKumulatif; @endphp
+                <td style="border: none; text-align: left;" class="{{ $deviasi >= 0 ? 'text-green' : 'text-red' }}">
+                    {{ ($deviasi > 0 ? '+' : '') . number_format($deviasi, 2, ',', '.') }}
+                </td>
             </tr>
         </table>
     </div>
@@ -472,7 +475,48 @@
 
     <div class="page-break"></div>
 
-    <!-- PAGE 4: VISUAL -->
+    <!-- PAGE 4: KURVA S -->
+    <div>
+        <table class="header-info" style="border: 1px solid black; width: 100%; margin-bottom: 20px;">
+            <tr>
+                <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">GRAFIK KURVA S</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 1px solid black; font-weight: bold;">
+                    {{ strtoupper($project->name) }}
+                </td>
+                <td style="border: 1px solid black; width: 15%;">MINGGU :</td>
+                <td style="border: 1px solid black; width: 15%; text-align: center;">{{ $weeklyReport->week_number }}</td>
+            </tr>
+        </table>
+
+        <!-- Time Schedule Table -->
+        <div style="font-size: 7px; margin-bottom: 20px; width: 100%;">
+            @php 
+                // We already have $allWeeks, $allPlans, $allReports, $realisasiMap, $summary from the controller logic
+                // But wait! We named them differently in WeeklyReportController
+                // In WeeklyReportController:
+                // $weeks is for the current week slice, $allWeeks is all weeks
+                // We should pass them or map them here for the partial
+            @endphp
+            @include('projects.pdf.partials.s_curve_table', [
+                'weeks' => $allWeeks ?? $project->weeks()->orderBy('week_number')->get(),
+                'plans' => $allPlans ?? $project->timeSchedulePlans()->get()->keyBy(fn($p) => $p->work_item_id . '_' . $p->project_week_id),
+                'realisasiMap' => $fullRealisasiMap ?? [],
+                'summary' => $fullSummary ?? []
+            ])
+        </div>
+
+        @if(isset($chartBase64) && $chartBase64)
+            <div style="margin-top: 40px; text-align: center; border: 1px solid #cbd5e1; padding: 20px; background-color: #f8fafc; border-radius: 8px;">
+                <img src="{{ $chartBase64 }}" alt="S-Curve Chart" style="max-width: 100%; height: auto;">
+            </div>
+        @endif
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- PAGE 5: VISUAL -->
     @php
         $visualsList = $weeklyReport->visuals()->orderBy('position')->get();
         $visualChunks = $visualsList->chunk(8);

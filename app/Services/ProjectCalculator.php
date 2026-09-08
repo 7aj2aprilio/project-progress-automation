@@ -46,7 +46,7 @@ class ProjectCalculator
     {
         $costMitra = (float) ($project->costStructure->biaya_mitra_pelaksana ?? 0);
         $totalRevenue = (float) $project->total_revenue;
-        $loanBase = ($totalRevenue > 0) ? $totalRevenue : $costMitra;
+        $loanBase = $costMitra;
         
         // Loan rate is per-project, defaults to 1.65% if not set
         $loanRate = (float) ($project->information->loan_rate ?? 1.65);

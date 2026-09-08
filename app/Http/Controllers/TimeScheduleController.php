@@ -194,13 +194,106 @@ class TimeScheduleController extends Controller
             }
         }
 
+        // Generate S-Curve chart via QuickChart
+        $labels = [];
+        $planData = [];
+        $realData = [];
+
+        foreach ($weeks as $week) {
+            $labels[] = 'W' . $week->week_number;
+            $planData[] = round($summary['rencana_komulatif'][$week->id] ?? 0, 2);
+            $realData[] = isset($summary['realisasi_komulatif'][$week->id]) ? round($summary['realisasi_komulatif'][$week->id], 2) : null;
+        }
+
+        $chartConfig = [
+            'type' => 'line',
+            'data' => [
+                'labels' => $labels,
+                'datasets' => [
+                    [
+                        'label' => 'Plan (%)',
+                        'data' => $planData,
+                        'borderColor' => 'rgb(29, 78, 216)', // Blue
+                        'backgroundColor' => 'rgba(29, 78, 216, 0.1)',
+                        'borderWidth' => 2,
+                        'fill' => true,
+                        'tension' => 0.4
+                    ],
+                    [
+                        'label' => 'Real (%)',
+                        'data' => $realData,
+                        'borderColor' => 'rgb(220, 38, 38)', // Red
+                        'backgroundColor' => 'rgba(220, 38, 38, 0.1)',
+                        'borderWidth' => 2,
+                        'fill' => true,
+                        'tension' => 0.4
+                    ]
+                ]
+            ],
+            'options' => [
+                'plugins' => [
+                    'datalabels' => [
+                        'display' => true,
+                        'align' => 'top',
+                        'color' => '#334155',
+                        'font' => ['weight' => 'bold', 'size' => 10],
+                        'formatter' => "(value) => { return value !== null ? value + '%' : ''; }"
+                    ]
+                ],
+                'title' => [
+                    'display' => true,
+                    'text' => 'Kurva S (Plan vs Actual)',
+                    'fontSize' => 16,
+                    'fontStyle' => 'bold'
+                ],
+                'legend' => [
+                    'display' => true,
+                    'position' => 'bottom'
+                ],
+                'layout' => [
+                    'padding' => [
+                        'left' => 10,
+                        'right' => 10,
+                        'top' => 30, // Extra top padding for labels
+                        'bottom' => 10
+                    ]
+                ],
+                'scales' => [
+                    'yAxes' => [[
+                        'ticks' => ['beginAtZero' => true, 'max' => 100],
+                        'scaleLabel' => [
+                            'display' => true,
+                            'labelString' => 'Persentase (%)'
+                        ]
+                    ]],
+                    'xAxes' => [[
+                        'gridLines' => ['display' => true, 'color' => '#f1f5f9'],
+                        'ticks' => ['display' => true]
+                    ]]
+                ]
+            ]
+        ];
+
+        // Ensure we handle HTTP errors gracefully
+        $chartBase64 = null;
+        try {
+            $chartUrl = "https://quickchart.io/chart?w=800&h=400&c=" . urlencode(json_encode($chartConfig));
+            $chartImage = @file_get_contents($chartUrl);
+            if ($chartImage) {
+                $chartBase64 = 'data:image/png;base64,' . base64_encode($chartImage);
+            }
+        } catch (\Exception $e) {
+            // Ignore if fails
+        }
+
         $pdf = Pdf::loadView('projects.pdf.time_schedule', compact(
             'project',
             'workItems',
             'weeks',
             'plans',
             'realisasiMap',
-            'summary'
+            'summary',
+            'chartBase64'
         ));
         $pdf->setPaper('A4', 'landscape');
 

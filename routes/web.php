@@ -45,6 +45,9 @@ Route::middleware('auth')->group(function () {
         // Time Schedule & Kurva S Management
         Route::post('/projects/{project}/weeks', [App\Http\Controllers\TimeScheduleController::class, 'saveWeeks'])->name('projects.weeks.save');
         Route::post('/projects/{project}/time-schedule/plans', [App\Http\Controllers\TimeScheduleController::class, 'savePlans'])->name('projects.time-schedule.plans.save');
+
+        // Cashflow Reset
+        Route::delete('/projects/{project}/reset-cashflow', [ProjectController::class, 'resetCashflow'])->name('projects.reset-cashflow');
     });
 
     // Projects — view (all roles)

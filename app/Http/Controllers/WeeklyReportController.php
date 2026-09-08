@@ -288,8 +288,164 @@ class WeeklyReportController extends Controller
         $previousProgresses = $previousReport ? $previousReport->progresses()->pluck('progress_percentage', 'work_item_id')->toArray() : [];
         $visuals = $weeklyReport->visuals->keyBy('position');
 
+        // Calculate Rencana Minggu Ini & Rencana Kumulatif from Time Schedule Plan
+        $rencanaMingguIni = 0;
+        $rencanaKumulatif = 0;
+        
+        $weeks = $project->weeks()->orderBy('week_number')->get();
+        $targetWeek = $weeks->where('week_number', $weeklyReport->week_number)->first();
+        
+        if ($targetWeek) {
+            // Get all plans for this project up to the current week
+            $relevantWeekIds = $weeks->where('week_number', '<=', $weeklyReport->week_number)->pluck('id');
+            $plans = \App\Models\TimeSchedulePlan::whereIn('project_week_id', $relevantWeekIds)->get();
+            
+            // Calculate Rencana Minggu Ini
+            $rencanaMingguIni = $plans->where('project_week_id', $targetWeek->id)->sum('plan_value');
+            
+            // Calculate Rencana Kumulatif
+            $rencanaKumulatif = $plans->sum('plan_value');
+        }
+
+        // --- Generate S-Curve Chart (QuickChart) ---
+        $chartBase64 = null;
+        $allWeeks = collect();
+        $allPlans = collect();
+        $fullRealisasiMap = [];
+        $fullSummary = ['rencana_komulatif' => [], 'realisasi_komulatif' => [], 'rencana' => [], 'realisasi' => [], 'deviasi' => []];
+
+        try {
+            $allWeeks = $project->weeks()->orderBy('week_number')->get();
+            $allPlans = $project->timeSchedulePlans()->get()->keyBy(fn($p) => $p->work_item_id . '_' . $p->project_week_id);
+            $allReports = $project->weeklyReports()->with(['progresses.workItem'])->get()->keyBy('week_number');
+            
+            foreach ($allWeeks as $w) {
+                $r = $allReports->get($w->week_number);
+                if ($r) {
+                    foreach ($r->progresses as $prog) {
+                        if ($prog->workItem) {
+                            $fullRealisasiMap[$prog->work_item_id][$w->id] = ($prog->progress_percentage * $prog->workItem->base_bobot) / 100;
+                        }
+                    }
+                }
+            }
+
+            $runRencana = 0; $runRealisasi = 0;
+
+            foreach ($allWeeks as $w) {
+                $weekPlanTotal = 0;
+                $weekRealTotal = 0;
+                $hasReport = $allReports->has($w->week_number);
+
+                foreach ($project->workItems as $wi) {
+                    if ($wi->type === 'item' || ($wi->type === 'main' && $wi->children->isEmpty())) {
+                        $key = $wi->id . '_' . $w->id;
+                        $weekPlanTotal += isset($allPlans[$key]) ? (float) $allPlans[$key]->plan_value : 0;
+                        if ($hasReport) $weekRealTotal += $fullRealisasiMap[$wi->id][$w->id] ?? 0;
+                    }
+                }
+
+                $runRencana += $weekPlanTotal;
+                $fullSummary['rencana'][$w->id] = $weekPlanTotal;
+                $fullSummary['rencana_komulatif'][$w->id] = $runRencana;
+                
+                if ($hasReport) {
+                    $runRealisasi += $weekRealTotal;
+                    $fullSummary['realisasi'][$w->id] = $weekRealTotal;
+                    $fullSummary['realisasi_komulatif'][$w->id] = $runRealisasi;
+                    $fullSummary['deviasi'][$w->id] = $runRealisasi - $runRencana;
+                } else {
+                    $fullSummary['realisasi'][$w->id] = null;
+                    $fullSummary['realisasi_komulatif'][$w->id] = null;
+                    $fullSummary['deviasi'][$w->id] = null;
+                }
+            }
+
+            $labels = []; $planData = []; $realData = [];
+            foreach ($allWeeks as $w) {
+                $labels[] = 'W' . $w->week_number;
+                $planData[] = round($fullSummary['rencana_komulatif'][$w->id] ?? 0, 2);
+                $realData[] = isset($fullSummary['realisasi_komulatif'][$w->id]) ? round($fullSummary['realisasi_komulatif'][$w->id], 2) : null;
+            }
+
+            $chartConfig = [
+                'type' => 'line',
+                'data' => [
+                    'labels' => $labels,
+                    'datasets' => [
+                        [
+                            'label' => 'Plan (%)',
+                            'data' => $planData,
+                            'borderColor' => 'rgb(29, 78, 216)', // Blue
+                            'backgroundColor' => 'rgba(29, 78, 216, 0.1)',
+                            'borderWidth' => 2,
+                            'fill' => true,
+                            'tension' => 0.4
+                        ],
+                        [
+                            'label' => 'Real (%)',
+                            'data' => $realData,
+                            'borderColor' => 'rgb(220, 38, 38)', // Red
+                            'backgroundColor' => 'rgba(220, 38, 38, 0.1)',
+                            'borderWidth' => 2,
+                            'fill' => true,
+                            'tension' => 0.4
+                        ]
+                    ]
+                ],
+                'options' => [
+                    'plugins' => [
+                        'datalabels' => [
+                            'display' => true,
+                            'align' => 'top',
+                            'color' => '#334155',
+                            'font' => ['weight' => 'bold', 'size' => 10],
+                            'formatter' => "(value) => { return value !== null ? value + '%' : ''; }"
+                        ]
+                    ],
+                    'title' => [
+                        'display' => true,
+                        'text' => 'Kurva S (Plan vs Actual)',
+                        'fontSize' => 16,
+                        'fontStyle' => 'bold'
+                    ],
+                    'legend' => [
+                        'display' => true,
+                        'position' => 'bottom'
+                    ],
+                    'layout' => [
+                        'padding' => [
+                            'left' => 10,
+                            'right' => 10,
+                            'top' => 30, // Extra top padding for labels
+                            'bottom' => 10
+                        ]
+                    ],
+                    'scales' => [
+                        'yAxes' => [[
+                            'ticks' => ['beginAtZero' => true, 'max' => 100],
+                            'scaleLabel' => [
+                                'display' => true,
+                                'labelString' => 'Persentase (%)'
+                            ]
+                        ]],
+                        'xAxes' => [[
+                            'gridLines' => ['display' => true, 'color' => '#f1f5f9'],
+                            'ticks' => ['display' => true]
+                        ]]
+                    ]
+                ]
+            ];
+            
+            $chartUrl = "https://quickchart.io/chart?w=800&h=400&c=" . urlencode(json_encode($chartConfig));
+            $chartImage = @file_get_contents($chartUrl);
+            if ($chartImage) {
+                $chartBase64 = 'data:image/png;base64,' . base64_encode($chartImage);
+            }
+        } catch (\Exception $e) {}
+
         // Calculate actual percentages before rendering
-        $pdf = Pdf::loadView('reports.weekly_pdf', compact('weeklyReport', 'project', 'workItems', 'previousReport', 'progresses', 'previousProgresses', 'visuals'));
+        $pdf = Pdf::loadView('reports.weekly_pdf', compact('weeklyReport', 'project', 'workItems', 'previousReport', 'progresses', 'previousProgresses', 'visuals', 'rencanaMingguIni', 'rencanaKumulatif', 'chartBase64', 'allWeeks', 'allPlans', 'fullRealisasiMap', 'fullSummary'));
         $pdf->setPaper('A4', 'portrait');
         
         return $pdf->download('Laporan_Mingguan_Ke_' . $weeklyReport->week_number . '_' . $project->name . '.pdf');
