@@ -2,10 +2,10 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Progres & Laporan') }} : {{ $project->name }}
+                {{ __('Progress & Reports') }} : {{ $project->name }}
             </h2>
             <a href="{{ route('weekly-reports.projects') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
-                &larr; Kembali ke Daftar Proyek
+                &larr; Back to Projects List
             </a>
         </div>
     </x-slot>
@@ -21,12 +21,12 @@
                             <button @click="activeTab = 'boq'"
                                     :class="activeTab === 'boq' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
-                                1. Rincian Pekerjaan (BoQ)
+                                1. Work Details (BoQ)
                             </button>
                             <button @click="activeTab = 'weekly_reports'"
                                     :class="activeTab === 'weekly_reports' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
-                                2. Laporan Mingguan
+                                2. Weekly Reports
                             </button>
                             <button @click="activeTab = 'jadwal'"
                                     :class="activeTab === 'jadwal' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
@@ -36,7 +36,7 @@
                             <button @click="activeTab = 'time_schedule'"
                                     :class="activeTab === 'time_schedule' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm">
-                                4. Time Schedule & Kurva S
+                                4. Time Schedule & S-Curve
                             </button>
                         </nav>
                     </div>

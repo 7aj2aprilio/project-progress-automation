@@ -12,7 +12,7 @@ class AboutController extends Controller
     public function index()
     {
         $appInfo = [
-            'name' => 'Sistem Otomasi Progres & Analisis Profitabilitas Proyek',
+            'name' => 'Project Progress & Profitability Automation System',
             'english_name' => 'Project Progress & Profitability Automation System',
             'organization' => 'Telkom Property (PT Graha Sarana Duta)',
             'version' => '1.0.0',

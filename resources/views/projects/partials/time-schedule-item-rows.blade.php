@@ -28,7 +28,7 @@
 <tr class="border-b border-slate-200 bg-sky-50/20">
     <td class="py-1 px-2 sticky left-0 bg-white z-20"></td>
     <td class="py-1 px-3 text-[10px] text-slate-400 italic sticky left-12 bg-white z-20 {{ $indent ?? 'pl-8' }} pl-12">
-        ↳ Rencana (Plan)
+        ↳ Plan
     </td>
     <td class="py-1 px-2 sticky left-[328px] bg-white z-20"></td>
 

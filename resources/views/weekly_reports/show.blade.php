@@ -2,14 +2,14 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Laporan Mingguan ke-{{ $weeklyReport->week_number }} : {{ $project->name }}
+                Weekly Report No {{ $weeklyReport->week_number }} : {{ $project->name }}
             </h2>
             <div class="flex gap-2">
                 <a href="{{ route('weekly-reports.download-pdf', $weeklyReport) }}" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700">
-                    Cetak PDF
+                    Print PDF
                 </a>
                 <a href="{{ route('weekly-reports.project-dashboard', ['project' => $project->id, 'tab' => 'weekly_reports']) }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300">
-                    Kembali
+                    Back
                 </a>
             </div>
         </div>
@@ -24,7 +24,7 @@
                         Input Progress
                     </button>
                     <button @click="activeTab = 'visual'" :class="{ 'border-indigo-500 text-indigo-600': activeTab === 'visual' }" class="px-3 py-2 border-b-2 border-transparent font-medium text-sm">
-                        Laporan Visual
+                        Visual Report
                     </button>
                 </nav>
             </div>
@@ -32,7 +32,7 @@
             <!-- Menampilkan Pesan Error / Sukses -->
             @if ($errors->any())
                 <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-                    <strong class="font-bold">Ada kesalahan:</strong>
+                    <strong class="font-bold">There is an error:</strong>
                     <ul class="mt-2 list-disc pl-5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -57,13 +57,13 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th rowspan="2" class="px-4 py-2 border text-xs text-center font-medium">NO</th>
-                                    <th rowspan="2" class="px-4 py-2 border text-xs text-left font-medium">ITEM PEKERJAAN</th>
-                                    <th rowspan="2" class="px-4 py-2 border text-xs text-center font-medium">BOBOT (%)</th>
-                                    <th colspan="2" class="px-4 py-2 border text-xs text-center font-medium">S/D MINGGU INI</th>
+                                    <th rowspan="2" class="px-4 py-2 border text-xs text-left font-medium">WORK ITEM</th>
+                                    <th rowspan="2" class="px-4 py-2 border text-xs text-center font-medium">WEIGHT (%)</th>
+                                    <th colspan="2" class="px-4 py-2 border text-xs text-center font-medium">UP TO THIS WEEK</th>
                                 </tr>
                                 <tr>
-                                    <th class="px-4 py-2 border text-xs text-center font-medium bg-indigo-50 text-indigo-700">PRESTASI (%)<br>(Input)</th>
-                                    <th class="px-4 py-2 border text-xs text-center font-medium">BOBOT (%)</th>
+                                    <th class="px-4 py-2 border text-xs text-center font-medium bg-indigo-50 text-indigo-700">ACHIEVEMENT (%)<br>(Input)</th>
+                                    <th class="px-4 py-2 border text-xs text-center font-medium">WEIGHT (%)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,7 +121,7 @@
                                                             $isComplete = $prevProgress >= 100;
                                                         @endphp
                                                         @if($isComplete)
-                                                            <input type="number" name="progress[{{ $item->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Sudah 100% di minggu sebelumnya">
+                                                            <input type="number" name="progress[{{ $item->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Already 100% in previous week">
                                                         @else
                                                             <input type="number" step="0.01" min="{{ $prevProgress }}" max="100" name="progress[{{ $item->id }}]" value="{{ $currProgress > 0 ? round($currProgress, 2) : '' }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                                                         @endif
@@ -143,7 +143,7 @@
                                                         $isComplete = $prevProgress >= 100;
                                                     @endphp
                                                     @if($isComplete)
-                                                        <input type="number" name="progress[{{ $subItem->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Sudah 100% di minggu sebelumnya">
+                                                        <input type="number" name="progress[{{ $subItem->id }}]" value="100" readonly class="w-full border-gray-200 bg-gray-100 text-gray-500 rounded text-right shadow-sm cursor-not-allowed" title="Already 100% in previous week">
                                                     @else
                                                         <input type="number" step="0.01" min="{{ $prevProgress }}" max="100" name="progress[{{ $subItem->id }}]" value="{{ $currProgress > 0 ? round($currProgress, 2) : '' }}" class="w-full border-gray-300 rounded text-right shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                                                     @endif
@@ -161,7 +161,7 @@
 
                     <div class="mt-4 flex justify-end">
                         @if(auth()->user()->canEdit())
-                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow">Simpan Progress</button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow">Save Progress</button>
                         @endif
                     </div>
                 </form>
@@ -174,19 +174,19 @@
                     
                     <!-- Logo Upload Section -->
                     <div class="mb-6 p-4 border rounded-lg bg-gray-50">
-                        <h4 class="font-bold text-gray-700 mb-2">Logo Laporan (Kiri Cover)</h4>
+                        <h4 class="font-bold text-gray-700 mb-2">Report Logo (Left Cover)</h4>
                         <div class="flex items-start gap-4">
                             @if($weeklyReport->logo_left_path)
                                 <div class="relative">
                                     <img src="{{ asset($weeklyReport->logo_left_path) }}" alt="Logo" class="h-16 object-contain bg-white p-1 border rounded shadow-sm">
                                     <label class="block mt-2 text-sm text-red-600 font-semibold cursor-pointer">
                                         <input type="checkbox" name="delete_logo" value="1" class="rounded border-red-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                        Hapus Logo
+                                        Delete Logo
                                     </label>
                                 </div>
                             @endif
                             <div class="flex-1">
-                                <label class="block text-xs text-gray-500 mb-1">{{ $weeklyReport->logo_left_path ? 'Ganti Logo:' : 'Upload Logo:' }}</label>
+                                <label class="block text-xs text-gray-500 mb-1">{{ $weeklyReport->logo_left_path ? 'Change Logo:' : 'Upload Logo:' }}</label>
                                 <input type="file" name="logo_left" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             </div>
                         </div>
@@ -201,7 +201,7 @@
                                         <label class="block text-sm font-medium text-gray-700">Visual {{ $index + 1 }}</label>
                                         <label class="inline-flex items-center text-sm text-red-600 font-semibold cursor-pointer">
                                             <input type="checkbox" name="delete_visuals[{{ $visual->id }}]" value="1" class="rounded border-red-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
-                                            <span class="ml-1">Hapus</span>
+                                            <span class="ml-1">Delete</span>
                                         </label>
                                     </div>
                                     <div class="mb-3">
@@ -209,11 +209,11 @@
                                     </div>
                                     <div class="space-y-2">
                                         <div>
-                                            <label class="block text-xs text-gray-500 mb-1">Ganti Gambar (Opsional):</label>
+                                            <label class="block text-xs text-gray-500 mb-1">Change Image (Optional):</label>
                                             <input type="file" name="existing_visual_images[{{ $visual->id }}]" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                                         </div>
                                         <div>
-                                            <input type="text" name="existing_visual_titles[{{ $visual->id }}]" value="{{ $visual->title }}" placeholder="Judul Gambar" class="w-full border-gray-300 rounded shadow-sm text-sm">
+                                            <input type="text" name="existing_visual_titles[{{ $visual->id }}]" value="{{ $visual->title }}" placeholder="Image Title" class="w-full border-gray-300 rounded shadow-sm text-sm">
                                         </div>
                                     </div>
                                 </div>
@@ -224,13 +224,13 @@
                                     <button type="button" @click="newVisuals.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Visual Baru</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">New Visual</label>
                                     <div class="space-y-3">
                                         <div>
                                             <input type="file" :name="`new_visual_images[${item.id}]`" accept="image/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                                         </div>
                                         <div>
-                                            <input type="text" :name="`new_visual_titles[${item.id}]`" placeholder="Judul Gambar" class="w-full border-gray-300 rounded shadow-sm text-sm">
+                                            <input type="text" :name="`new_visual_titles[${item.id}]`" placeholder="Image Title" class="w-full border-gray-300 rounded shadow-sm text-sm">
                                         </div>
                                     </div>
                                 </div>
@@ -241,7 +241,7 @@
                             <div class="mt-4">
                                 <button type="button" @click="newVisuals.push({ id: Date.now() })" class="inline-flex items-center px-4 py-2 bg-white border border-indigo-300 rounded-lg text-sm font-semibold text-indigo-700 hover:bg-indigo-50">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    Tambah Visual Baru
+                                    Add New Visual
                                 </button>
                             </div>
                         @endif

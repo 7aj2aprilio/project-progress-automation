@@ -1,10 +1,20 @@
 <div x-show="activeTab === 'weekly_reports'" x-cloak x-data="{ expandedReport: null }">
     <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-slate-800">Laporan Mingguan</h3>
+        <h3 class="text-lg font-semibold text-slate-800">Weekly Reports</h3>
         @if(auth()->user()->canEdit())
-            <a href="{{ route('weekly-reports.create', ['project' => $project->id]) }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">
-                + Buat Laporan Mingguan
-            </a>
+            <div class="flex items-center gap-2">
+                <button type="button" @click="$dispatch('open-manage-weeks')"
+                        class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-sm font-semibold shadow-sm transition-all">
+                    <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Set Week Periods ({{ $weeks->count() }})
+                </button>
+
+                <a href="{{ route('weekly-reports.create', ['project' => $project->id]) }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow-sm transition-all">
+                    + Create Weekly Report
+                </a>
+            </div>
         @endif
     </div>
     
@@ -12,29 +22,29 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Minggu Ke</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Realisasi (%)</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Week No</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Actual (%)</th>
+                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Manage Report</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($project->weeklyReports as $report)
                     <tr class="hover:bg-slate-50 cursor-pointer" @click="expandedReport = expandedReport === {{ $report->id }} ? null : {{ $report->id }}">
-                        <td class="px-4 py-3 text-gray-500">
-                            <svg class="w-5 h-5 transition-transform duration-200" :class="{'rotate-90': expandedReport === {{ $report->id }}}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        <td class="px-4 py-3 text-center text-gray-500">
+                            <svg class="w-5 h-5 mx-auto transition-transform duration-200" :class="{'rotate-90': expandedReport === {{ $report->id }}}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-900 font-medium">Minggu ke-{{ $report->week_number }}</td>
-                        <td class="px-4 py-3 text-sm text-gray-500">
+                        <td class="px-4 py-3 text-center text-sm text-gray-900 font-medium">Week {{ $report->week_number }}</td>
+                        <td class="px-4 py-3 text-center text-sm text-gray-500">
                             {{ $report->start_date->format('d M Y') }} - {{ $report->end_date->format('d M Y') }}
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-500 font-semibold">
+                        <td class="px-4 py-3 text-center text-sm text-gray-500 font-semibold">
                             {{ number_format($report->total_realisasi, 2) }}%
                         </td>
-                        <td class="px-4 py-3 text-sm text-right font-medium">
+                        <td class="px-4 py-3 text-center text-sm font-medium">
                             <a href="{{ route('weekly-reports.show', $report->id) }}" class="inline-block text-indigo-600 hover:text-indigo-900 mr-3 px-3 py-1 bg-indigo-50 rounded" @click.stop>
-                                {{ auth()->user()->canEdit() ? 'Detail & Input Progress' : 'Lihat Detail' }}
+                                {{ auth()->user()->canEdit() ? 'Details & Input Progress' : 'View Details' }}
                             </a>
                             <a href="{{ route('weekly-reports.download-pdf', $report->id) }}" class="inline-block text-emerald-600 hover:text-emerald-900 px-3 py-1 bg-emerald-50 rounded" @click.stop>
                                 Download PDF
@@ -57,15 +67,15 @@
                                     else this.expandedSubs.push(id); 
                                 } 
                             }">
-                                <h4 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Rincian Progress (BoQ) - Minggu ke-{{ $report->week_number }}</h4>
+                                <h4 class="text-sm font-semibold text-gray-700 mb-3 border-b pb-2">Progress Details (BoQ) - Week {{ $report->week_number }}</h4>
                                 @if($report->progresses->count() > 0)
                                     <table class="min-w-full text-sm text-left text-gray-500 bg-white border rounded">
                                         <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                                             <tr>
-                                                <th class="px-4 py-2 border-b w-1/2">Nama Pekerjaan</th>
-                                                <th class="px-4 py-2 border-b text-right">Bobot Total</th>
-                                                <th class="px-4 py-2 border-b text-right text-indigo-700">Progress (%) S/D Minggu Ini</th>
-                                                <th class="px-4 py-2 border-b text-right text-emerald-700">Pencapaian Bobot</th>
+                                                <th class="px-4 py-2 border-b w-1/2">Work Name</th>
+                                                <th class="px-4 py-2 border-b text-right">Total Weight</th>
+                                                <th class="px-4 py-2 border-b text-right text-indigo-700">Progress (%) Up To This Week</th>
+                                                <th class="px-4 py-2 border-b text-right text-emerald-700">Weight Achievement</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -138,14 +148,14 @@
                                         </tbody>
                                     </table>
                                 @else
-                                    <p class="text-sm text-gray-500 italic py-2">Belum ada data progress untuk minggu ini.</p>
+                                    <p class="text-sm text-gray-500 italic py-2">No progress data for this week yet.</p>
                                 @endif
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic">Belum ada laporan mingguan.</td>
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic">No weekly reports yet.</td>
                     </tr>
                 @endforelse
             </tbody>

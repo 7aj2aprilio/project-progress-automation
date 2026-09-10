@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Mingguan</title>
+    <title>Weekly Report</title>
     <style>
         @font-face {
             font-family: 'Arial Black';
@@ -78,23 +78,23 @@
 
         <!-- Text Project -->
         <div style="text-align: center; font-weight: bold; line-height: 1.4; margin-top: 50px;">
-            <div style="font-size: 16px; margin-bottom: 20px;">PEKERJAAN</div>
-            <div style="font-size: 22px; margin-bottom: 20px;">{{ strtoupper($project->name) }}</div>
-            <div style="font-size: 14px;">{{ strtoupper($project->information->lokasi_project ?? 'LOKASI') }}</div>
+            <div class="font-size: 16px; margin-bottom: 20px;">WORK</div>
+            <div class="font-size: 22px; margin-bottom: 20px;">{{ strtoupper($project->name) }}</div>
+            <div style="font-size: 14px;">{{ strtoupper($project->information->lokasi_project ?? 'LOCATION') }}</div>
         </div>
 
         <!-- Text Report -->
         <div style="text-align: center; font-weight: bold; line-height: 1.2; margin-top: 80px;">
-            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 900; margin-bottom: 10px;">LAPORAN MINGGUAN</div>
-            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 900;">(WEEKLY REPORT)</div>
+            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 900; margin-bottom: 10px;">WEEKLY REPORT</div>
+            <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 900;">(PROGRESS REPORT)</div>
         </div>
         
         <!-- Text Period -->
         <div style="position: absolute; bottom: 70px; left: 0; width: 100%; text-align: center; font-weight: bold; line-height: 1.3;">
-            <div style="font-size: 12px; margin-bottom: 5px;">PERIODE :</div>
-            <div style="font-size: 14px; margin-bottom: 10px;">MINGGU KE</div>
+            <div style="font-size: 12px; margin-bottom: 5px;">PERIOD :</div>
+            <div style="font-size: 14px; margin-bottom: 10px;">WEEK NO</div>
             <div style="font-family: 'Arial Black', Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 900; margin-bottom: 15px;">{{ $weeklyReport->week_number }}</div>
-            <div style="font-size: 14px;">{{ \Carbon\Carbon::parse($weeklyReport->start_date)->isoFormat('DD MMMM Y') }} &nbsp; hingga &nbsp; {{ \Carbon\Carbon::parse($weeklyReport->end_date)->isoFormat('DD MMMM Y') }}</div>
+            <div style="font-size: 14px;">{{ \Carbon\Carbon::parse($weeklyReport->start_date)->isoFormat('DD MMMM Y') }} &nbsp; to &nbsp; {{ \Carbon\Carbon::parse($weeklyReport->end_date)->isoFormat('DD MMMM Y') }}</div>
         </div>
         
         <!-- Year -->
@@ -109,7 +109,7 @@
     <div>
         <table class="header-info">
             <tr>
-                <td width="15%">PROGRES PEKERJAAN</td>
+                <td width="15%">WORK PROGRESS</td>
                 <td></td>
                 <td width="15%">Week</td>
                 <td width="2%">:</td>
@@ -117,13 +117,13 @@
             </tr>
             <tr>
                 <td colspan="2">{{ strtoupper($project->name) }}</td>
-                <td>Mulai</td>
+                <td>Start</td>
                 <td>:</td>
                 <td>{{ $weeklyReport->start_date->format('d/m/y') }}</td>
             </tr>
             <tr>
                 <td colspan="2">{{ $project->information->lokasi_project ?? '-' }}</td>
-                <td>Hingga</td>
+                <td>Until</td>
                 <td>:</td>
                 <td>{{ $weeklyReport->end_date->format('d/m/y') }}</td>
             </tr>
@@ -133,19 +133,19 @@
             <thead>
                 <tr class="text-center font-bold" style="background-color: #f0f0f0;">
                     <th rowspan="2" width="5%">NO</th>
-                    <th rowspan="2" width="45%">ITEM PEKERJAAN</th>
-                    <th rowspan="2" width="10%">BOBOT</th>
-                    <th colspan="2">MINGGU LALU</th>
-                    <th colspan="2">MINGGU INI</th>
-                    <th colspan="2">S/D MINGGU INI</th>
+                    <th rowspan="2" width="45%">WORK ITEM</th>
+                    <th rowspan="2" width="10%">WEIGHT</th>
+                    <th colspan="2">PREVIOUS WEEK</th>
+                    <th colspan="2">THIS WEEK</th>
+                    <th colspan="2">UP TO THIS WEEK</th>
                 </tr>
                 <tr class="text-center font-bold" style="background-color: #f0f0f0;">
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
                 </tr>
                 <tr class="text-center">
                     <td>1</td>
@@ -276,27 +276,27 @@
         <br><br>
         <table style="width: 40%; margin: 0 auto; border: none;">
             <tr>
-                <td style="border: none; text-align: right;">Rencana Minggu ini</td>
+                <td style="border: none; text-align: right;">Plan for This Week</td>
                 <td style="border: none; width: 10px;">=</td>
                 <td style="border: none; text-align: left;">{{ number_format($rencanaMingguIni, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td style="border: none; text-align: right; font-weight: bold;">Rencana Kumulatif</td>
+                <td style="border: none; text-align: right; font-weight: bold;">Cumulative Plan</td>
                 <td style="border: none;">=</td>
                 <td style="border: none; text-align: left;">{{ number_format($rencanaKumulatif, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td style="border: none; text-align: right;">Realisasi Minggu ini</td>
+                <td style="border: none; text-align: right;">Actual for This Week</td>
                 <td style="border: none;">=</td>
                 <td style="border: none; text-align: left;">{{ number_format($totalBobotIni, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td style="border: none; text-align: right; font-weight: bold;">Realisasi Kumulatif</td>
+                <td style="border: none; text-align: right; font-weight: bold;">Cumulative Actual</td>
                 <td style="border: none;">=</td>
                 <td style="border: none; text-align: left;">{{ number_format($totalBobotSD, 2, ',', '.') }}</td>
             </tr>
             <tr>
-                <td style="border: none; text-align: right;">Deviasi</td>
+                <td style="border: none; text-align: right;">Deviation</td>
                 <td style="border: none;">=</td>
                 @php $deviasi = $totalBobotSD - $rencanaKumulatif; @endphp
                 <td style="border: none; text-align: left;" class="{{ $deviasi >= 0 ? 'text-green' : 'text-red' }}">
@@ -312,7 +312,7 @@
     <div>
         <table class="header-info">
             <tr>
-                <td width="15%">PROGRES PEKERJAAN</td>
+                <td width="15%">WORK PROGRESS</td>
                 <td></td>
                 <td width="15%">Week</td>
                 <td width="2%">:</td>
@@ -320,13 +320,13 @@
             </tr>
             <tr>
                 <td colspan="2">{{ strtoupper($project->name) }}</td>
-                <td>Mulai</td>
+                <td>Start</td>
                 <td>:</td>
                 <td>{{ $weeklyReport->start_date->format('d/m/y') }}</td>
             </tr>
             <tr>
                 <td colspan="2">{{ $project->information->lokasi_project ?? '-' }}</td>
-                <td>Hingga</td>
+                <td>Until</td>
                 <td>:</td>
                 <td>{{ $weeklyReport->end_date->format('d/m/y') }}</td>
             </tr>
@@ -336,19 +336,19 @@
             <thead>
                 <tr class="text-center font-bold" style="background-color: #f0f0f0;">
                     <th rowspan="2" width="5%">NO</th>
-                    <th rowspan="2" width="45%">ITEM PEKERJAAN</th>
-                    <th rowspan="2" width="10%">BOBOT</th>
-                    <th colspan="2">MINGGU LALU</th>
-                    <th colspan="2">MINGGU INI</th>
-                    <th colspan="2">S/D MINGGU INI</th>
+                    <th rowspan="2" width="45%">WORK ITEM</th>
+                    <th rowspan="2" width="10%">WEIGHT</th>
+                    <th colspan="2">PREVIOUS WEEK</th>
+                    <th colspan="2">THIS WEEK</th>
+                    <th colspan="2">UP TO THIS WEEK</th>
                 </tr>
                 <tr class="text-center font-bold" style="background-color: #f0f0f0;">
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
-                    <th>PRESTASI</th>
-                    <th>BOBOT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
+                    <th>ACHIEVEMENT</th>
+                    <th>WEIGHT %</th>
                 </tr>
             </thead>
             <tbody>
@@ -479,13 +479,13 @@
     <div>
         <table class="header-info" style="border: 1px solid black; width: 100%; margin-bottom: 20px;">
             <tr>
-                <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">GRAFIK KURVA S</td>
+                <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">S-CURVE CHART</td>
             </tr>
             <tr>
                 <td colspan="2" style="border: 1px solid black; font-weight: bold;">
                     {{ strtoupper($project->name) }}
                 </td>
-                <td style="border: 1px solid black; width: 15%;">MINGGU :</td>
+                <td style="border: 1px solid black; width: 15%;">WEEK :</td>
                 <td style="border: 1px solid black; width: 15%; text-align: center;">{{ $weeklyReport->week_number }}</td>
             </tr>
         </table>
@@ -532,17 +532,17 @@
         <div>
             <table class="header-info" style="border: 1px solid black; width: 100%; margin-bottom: 20px;">
                 <tr>
-                    <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">LAPORAN VISUAL {{ $pageIndex > 0 ? '(Lanjutan ' . $pageIndex . ')' : '' }}</td>
+                    <td colspan="4" class="text-center font-bold" style="border: 1px solid black; font-size: 14px;">VISUAL REPORT {{ $pageIndex > 0 ? '(Continued ' . $pageIndex . ')' : '' }}</td>
                 </tr>
                 <tr>
                     <td colspan="2" style="border: 1px solid black; font-weight: bold;">
                         {{ strtoupper($project->name) }}
                     </td>
-                    <td style="border: 1px solid black; width: 15%;">MINGGU :</td>
+                    <td style="border: 1px solid black; width: 15%;">WEEK :</td>
                     <td style="border: 1px solid black; width: 15%; text-align: center; font-weight: bold;">{{ $weeklyReport->week_number }}</td>
                 </tr>
                 <tr>
-                    <td style="width: 15%;">LOKASI</td>
+                    <td style="width: 15%;">LOCATION</td>
                     <td>: {{ $project->information->lokasi_project ?? '-' }}</td>
                     <td colspan="2" rowspan="2" style="border: 1px solid black;">
                         {{ $weeklyReport->start_date->format('d F Y') }}<br>
@@ -550,7 +550,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>TAHUN</td>
+                    <td>YEAR</td>
                     <td>: {{ $weeklyReport->start_date->format('Y') }}</td>
                 </tr>
             </table>

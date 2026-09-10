@@ -2,8 +2,8 @@
     <thead>
         <tr>
             <th style="width: 25px; border: 1px solid black;">NO</th>
-            <th style="width: 180px; border: 1px solid black;" class="text-left">URAIAN PEKERJAAN</th>
-            <th style="width: 45px; border: 1px solid black;" class="text-right">BOBOT</th>
+            <th style="width: 180px; border: 1px solid black;" class="text-left">WORK DESCRIPTION</th>
+            <th style="width: 45px; border: 1px solid black;" class="text-right">WEIGHT</th>
             @foreach($weeks as $w)
                 <th style="border: 1px solid black;">
                     W-{{ $w->week_number }}<br>
@@ -112,7 +112,7 @@
     <tfoot>
         {{-- 1. RENCANA --}}
         <tr class="footer-rencana" style="font-weight: bold;">
-            <td colspan="3" class="text-left" style="border: 1px solid black;">1. RENCANA</td>
+            <td colspan="3" class="text-left" style="border: 1px solid black;">1. PLAN</td>
             @foreach($weeks as $w)
                 <td class="text-center" style="border: 1px solid black;">{{ number_format($summary['rencana'][$w->id] ?? 0, 2) }}</td>
             @endforeach
@@ -120,7 +120,7 @@
 
         {{-- 2. RENCANA KOMULATIF --}}
         <tr class="footer-ren-kom" style="font-weight: bold;">
-            <td colspan="3" class="text-left" style="border: 1px solid black;">2. RENCANA KOMULATIF</td>
+            <td colspan="3" class="text-left" style="border: 1px solid black;">2. CUMULATIVE PLAN</td>
             @foreach($weeks as $w)
                 <td class="text-center" style="border: 1px solid black;">{{ number_format($summary['rencana_komulatif'][$w->id] ?? 0, 2) }}</td>
             @endforeach
@@ -128,7 +128,7 @@
 
         {{-- 3. REALISASI --}}
         <tr class="footer-realisasi" style="font-weight: bold;">
-            <td colspan="3" class="text-left" style="border: 1px solid black;">3. REALISASI</td>
+            <td colspan="3" class="text-left" style="border: 1px solid black;">3. ACTUAL</td>
             @foreach($weeks as $w)
                 <td class="text-center" style="border: 1px solid black;">
                     {{ isset($summary['realisasi'][$w->id]) && $summary['realisasi'][$w->id] !== null ? number_format($summary['realisasi'][$w->id], 2) : '-' }}
@@ -138,7 +138,7 @@
 
         {{-- 4. REALISASI KOMULATIF --}}
         <tr class="footer-real-kom" style="font-weight: bold;">
-            <td colspan="3" class="text-left" style="border: 1px solid black;">4. REALISASI KOMULATIF</td>
+            <td colspan="3" class="text-left" style="border: 1px solid black;">4. CUMULATIVE ACTUAL</td>
             @foreach($weeks as $w)
                 <td class="text-center" style="border: 1px solid black;">
                     {{ isset($summary['realisasi_komulatif'][$w->id]) && $summary['realisasi_komulatif'][$w->id] !== null ? number_format($summary['realisasi_komulatif'][$w->id], 2) : '-' }}
@@ -148,7 +148,7 @@
 
         {{-- 5. DEVIASI --}}
         <tr class="footer-deviasi" style="font-weight: bold;">
-            <td colspan="3" class="text-left" style="border: 1px solid black;">5. DEVIASI</td>
+            <td colspan="3" class="text-left" style="border: 1px solid black;">5. DEVIATION</td>
             @foreach($weeks as $w)
                 @php $dev = $summary['deviasi'][$w->id] ?? null; @endphp
                 <td class="text-center" style="border: 1px solid black;">

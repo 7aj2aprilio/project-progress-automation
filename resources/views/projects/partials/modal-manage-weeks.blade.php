@@ -8,6 +8,7 @@
 ])) }})"
     x-show="showManageWeeksModal" 
     x-cloak 
+    style="display: none;"
     @open-manage-weeks.window="showManageWeeksModal = true"
     class="fixed inset-0 z-50 overflow-y-auto"
     aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -28,8 +29,8 @@
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-bold" id="modal-title">Kelola Periode Minggu Proyek</h3>
-                        <p class="text-xs text-slate-300">Tentukan periode minggu secara manual (durasi tidak harus 7 hari)</p>
+                        <h3 class="text-lg font-bold" id="modal-title">Manage Project Week Periods</h3>
+                        <p class="text-xs text-slate-300">Define week periods manually (duration does not have to be 7 days)</p>
                     </div>
                 </div>
                 <button @click="showManageWeeksModal = false" class="text-slate-400 hover:text-white transition-colors">
@@ -46,9 +47,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                     <div class="text-xs text-amber-800 leading-relaxed">
-                        <strong class="font-semibold">Info Periode Fleksibel:</strong><br>
-                        Setiap baris minggu dapat diatur dengan rentang tanggal bebas (misal: 3 hari, 4 hari, atau 7 hari).<br>
-                        Saat Anda menyimpan, <strong>template Laporan Mingguan</strong> akan otomatis disinkronkan dan kolom Time Schedule langsung menyesuaikan.
+                        <strong class="font-semibold">Flexible Period Info:</strong><br>
+                        Each week row can be set with a free date range (e.g., 3 days, 4 days, or 7 days).<br>
+                        When you save, the <strong>Weekly Report template</strong> will automatically sync and the Time Schedule columns will adjust accordingly.
                     </div>
                 </div>
 
@@ -57,11 +58,11 @@
                     <table class="min-w-full divide-y divide-slate-200 text-sm">
                         <thead class="bg-slate-50 sticky top-0 z-10">
                             <tr>
-                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700 w-24">Minggu Ke</th>
-                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">Tanggal Mulai</th>
-                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">Tanggal Selesai</th>
-                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">Catatan / Keterangan</th>
-                                <th class="px-3 py-2.5 text-center font-semibold text-slate-700 w-16">Aksi</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700 w-24">Week No</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">Start Date</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">End Date</th>
+                                <th class="px-4 py-2.5 text-left font-semibold text-slate-700">Notes / Remarks</th>
+                                <th class="px-3 py-2.5 text-center font-semibold text-slate-700 w-16">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 bg-white">
@@ -83,13 +84,13 @@
                                                class="w-full rounded-lg border-slate-300 text-xs focus:ring-indigo-500 focus:border-indigo-500 py-1 px-2">
                                     </td>
                                     <td class="px-4 py-2">
-                                        <input type="text" x-model="w.notes" placeholder="Opsional (misal: 4 hari)" 
+                                        <input type="text" x-model="w.notes" placeholder="Optional (e.g., 4 days)" 
                                                class="w-full rounded-lg border-slate-300 text-xs focus:ring-indigo-500 focus:border-indigo-500 py-1 px-2">
                                     </td>
                                     <td class="px-3 py-2 text-center">
                                         <button type="button" @click="removeWeek(idx)" 
                                                 class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition-colors"
-                                                title="Hapus baris minggu">
+                                                title="Delete week row">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                             </svg>
@@ -101,7 +102,7 @@
                             <template x-if="weekList.length === 0">
                                 <tr>
                                     <td colspan="5" class="px-4 py-8 text-center text-slate-400 italic text-xs">
-                                        Belum ada periode minggu yang ditambahkan. Klik tombol di bawah untuk menambahkan minggu pertama.
+                                        No week periods added yet. Click the button below to add the first week.
                                     </td>
                                 </tr>
                             </template>
@@ -116,10 +117,10 @@
                         <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        + Tambah Minggu Berikutnya
+                        + Add Next Week
                     </button>
                     
-                    <span class="text-xs text-slate-500 font-medium" x-text="`${weekList.length} Minggu terdaftar`"></span>
+                    <span class="text-xs text-slate-500 font-medium" x-text="`${weekList.length} Weeks registered`"></span>
                 </div>
 
             </div>
@@ -128,7 +129,7 @@
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-between items-center">
                 <button type="button" @click="showManageWeeksModal = false" 
                         class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-100 transition-colors">
-                    Tutup
+                    Close
                 </button>
                 
                 <button type="button" @click="saveWeeks()" :disabled="loading"
@@ -137,7 +138,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                     </svg>
-                    <span x-text="loading ? 'Menyimpan...' : 'Simpan Periode Minggu'"></span>
+                    <span x-text="loading ? 'Saving...' : 'Save Week Periods'"></span>
                 </button>
             </div>
 
@@ -178,7 +179,7 @@ function manageWeeksComponent(initialWeeks) {
         },
 
         removeWeek(idx) {
-            if (confirm('Hapus baris minggu ini? Data kolom Time Schedule untuk minggu ini akan terhapus.')) {
+            if (confirm('Delete this week row? Time Schedule column data for this week will be deleted.')) {
                 this.weekList.splice(idx, 1);
             }
         },
@@ -188,11 +189,11 @@ function manageWeeksComponent(initialWeeks) {
             for (let i = 0; i < this.weekList.length; i++) {
                 const w = this.weekList[i];
                 if (!w.week_number || !w.start_date || !w.end_date) {
-                    alert(`Baris ke-${i+1}: Mohon lengkapi nomor minggu, tanggal mulai, dan tanggal selesai.`);
+                    alert(`Row ${i+1}: Please complete week number, start date, and end date.`);
                     return;
                 }
                 if (w.start_date > w.end_date) {
-                    alert(`Baris ke-${i+1}: Tanggal selesai tidak boleh sebelum tanggal mulai.`);
+                    alert(`Row ${i+1}: End date cannot be before start date.`);
                     return;
                 }
             }
@@ -212,15 +213,15 @@ function manageWeeksComponent(initialWeeks) {
 
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    alert(data.message || 'Periode minggu berhasil disimpan!');
+                    alert(data.message || 'Week periods saved successfully!');
                     // Reload page to refresh columns and tables
-                    window.location.search = '?tab=time_schedule';
+                    window.location.search = '?tab=weekly_reports';
                 } else {
-                    alert(data.message || 'Gagal menyimpan periode minggu.');
+                    alert(data.message || 'Failed to save week periods.');
                 }
             } catch (err) {
                 console.error(err);
-                alert('Terjadi kesalahan jaringan saat menyimpan.');
+                alert('Network error occurred while saving.');
             } finally {
                 this.loading = false;
             }

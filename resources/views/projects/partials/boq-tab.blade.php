@@ -8,7 +8,7 @@
     itemVolume: '',
     itemUnit: '',
     itemPrice: '',
-    modalTitle: 'Tambah Pekerjaan Utama',
+    modalTitle: 'Add Main Work',
     
     openAdd(type, parent = null, title = '') {
         this.isEdit = false;
@@ -37,10 +37,10 @@
     }
 }">
     <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-slate-800">Rincian Pekerjaan (BoQ)</h3>
+        <h3 class="text-lg font-semibold text-slate-800">Work Details (BoQ)</h3>
         @if(auth()->user()->canEdit())
-            <button @click="openAdd('main', null, 'Tambah Pekerjaan Utama')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">
-                + Tambah Pekerjaan Utama
+            <button @click="openAdd('main', null, 'Add Main Work')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700">
+                + Add Main Work
             </button>
         @endif
     </div>
@@ -64,7 +64,7 @@
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" x-text="modalTitle"></h3>
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Nama Pekerjaan</label>
+                            <label class="block text-sm font-medium text-gray-700">Work Name</label>
                             <input type="text" name="name" x-model="itemName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
                         <template x-if="itemType === 'item'">
@@ -74,11 +74,11 @@
                                     <input type="number" step="0.01" name="volume" x-model="itemVolume" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Satuan</label>
+                                    <label class="block text-sm font-medium text-gray-700">Unit</label>
                                     <input type="text" name="unit" x-model="itemUnit" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Harga Satuan</label>
+                                    <label class="block text-sm font-medium text-gray-700">Unit Price</label>
                                     <input type="number" name="unit_price" x-model="itemPrice" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                 </div>
                             </div>
@@ -86,10 +86,10 @@
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
-                            Simpan
+                            Save
                         </button>
                         <button type="button" @click="showModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            Batal
+                            Cancel
                         </button>
                     </div>
                 </form>
@@ -102,14 +102,14 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Pekerjaan</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Item</th>
                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Harga</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Bobot (%)</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Price</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Weight (%)</th>
                     @if(auth()->user()->canEdit())
-                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     @endif
                 </tr>
             </thead>
@@ -125,11 +125,11 @@
                         <td class="px-4 py-3 text-right">{{ number_format($mainItem->base_bobot, 2, ',', '.') }}%</td>
                         @if(auth()->user()->canEdit())
                             <td class="px-4 py-3 text-right flex justify-end gap-2">
-                                <button @click="openAdd('sub', {{ $mainItem->id }}, 'Tambah Sub Pekerjaan')" class="text-xs text-indigo-600 hover:text-indigo-900">+ Sub</button>
-                                <button @click="openAdd('item', {{ $mainItem->id }}, 'Tambah Item Detail')" class="text-xs text-emerald-600 hover:text-emerald-900">+ Item</button>
-                                <form action="{{ route('work-items.destroy', $mainItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus pekerjaan ini?');">
+                                <button @click="openAdd('sub', {{ $mainItem->id }}, 'Add Sub Work')" class="text-xs text-indigo-600 hover:text-indigo-900">+ Sub</button>
+                                <button @click="openAdd('item', {{ $mainItem->id }}, 'Add Item Detail')" class="text-xs text-emerald-600 hover:text-emerald-900">+ Item</button>
+                                <form action="{{ route('work-items.destroy', $mainItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this work?');">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-xs text-red-600 hover:text-red-900">Hapus</button>
+                                    <button type="submit" class="text-xs text-red-600 hover:text-red-900">Delete</button>
                                 </form>
                             </td>
                         @endif
@@ -146,10 +146,10 @@
                                 <td class="px-4 py-3 text-right">{{ number_format($subItem->base_bobot, 2, ',', '.') }}%</td>
                                 @if(auth()->user()->canEdit())
                                     <td class="px-4 py-3 text-right flex justify-end gap-2">
-                                        <button @click="openAdd('item', {{ $subItem->id }}, 'Tambah Item Detail')" class="text-xs text-emerald-600 hover:text-emerald-900">+ Item</button>
-                                        <form action="{{ route('work-items.destroy', $subItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus pekerjaan ini?');">
+                                        <button @click="openAdd('item', {{ $subItem->id }}, 'Add Item Detail')" class="text-xs text-emerald-600 hover:text-emerald-900">+ Item</button>
+                                        <form action="{{ route('work-items.destroy', $subItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this work?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:text-red-900">Hapus</button>
+                                            <button type="submit" class="text-xs text-red-600 hover:text-red-900">Delete</button>
                                         </form>
                                     </td>
                                 @endif
@@ -166,9 +166,9 @@
                                     @if(auth()->user()->canEdit())
                                         <td class="px-4 py-2 text-right flex justify-end gap-2">
                                             <button @click="openEdit({{ $item }}, '{{ route('work-items.update', $item->id) }}')" class="text-xs text-blue-600 hover:text-blue-900">Edit</button>
-                                            <form action="{{ route('work-items.destroy', $item->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus item ini?');">
+                                            <form action="{{ route('work-items.destroy', $item->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this item?');">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="text-xs text-red-600 hover:text-red-900">Hapus</button>
+                                                <button type="submit" class="text-xs text-red-600 hover:text-red-900">Delete</button>
                                             </form>
                                         </td>
                                     @endif
@@ -186,9 +186,9 @@
                                 @if(auth()->user()->canEdit())
                                     <td class="px-4 py-2 text-right flex justify-end gap-2">
                                         <button @click="openEdit({{ $subItem }}, '{{ route('work-items.update', $subItem->id) }}')" class="text-xs text-blue-600 hover:text-blue-900">Edit</button>
-                                        <form action="{{ route('work-items.destroy', $subItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus item ini?');">
+                                        <form action="{{ route('work-items.destroy', $subItem->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this item?');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:text-red-900">Hapus</button>
+                                            <button type="submit" class="text-xs text-red-600 hover:text-red-900">Delete</button>
                                         </form>
                                     </td>
                                 @endif
@@ -197,13 +197,13 @@
                     @endforeach
                 @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-4 text-center text-gray-500 italic">Belum ada rincian pekerjaan (BoQ).</td>
+                        <td colspan="8" class="px-4 py-4 text-center text-gray-500 italic">No work details (BoQ) yet.</td>
                     </tr>
                 @endforelse
             </tbody>
             <tfoot class="bg-gray-100 font-bold border-t-2 border-gray-300">
                 <tr>
-                    <td colspan="5" class="px-4 py-4 text-right uppercase tracking-wider text-slate-800">Total Keseluruhan Pekerjaan</td>
+                    <td colspan="5" class="px-4 py-4 text-right uppercase tracking-wider text-slate-800">Total Work Overall</td>
                     <td class="px-4 py-4 text-right text-indigo-700 text-lg">Rp {{ number_format($project->workItems()->where('type', 'main')->get()->sum('total_price'), 0, ',', '.') }}</td>
                     <td class="px-4 py-4 text-right text-indigo-700 text-lg">100,00%</td>
                     @if(auth()->user()->canEdit())

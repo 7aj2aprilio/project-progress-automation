@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-bold text-xl text-slate-800 leading-tight">
-            {{ __('Profitability dan Proyek') }}
+            {{ __('Profitability & Projects') }}
         </h2>
     </x-slot>
 
@@ -31,7 +31,7 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="text-sm text-slate-500">Total Proyek</div>
+                            <div class="text-sm text-slate-500">Total Projects</div>
                             <div class="text-3xl font-bold text-slate-800">{{ $projects->count() }}</div>
                         </div>
                     </div>
@@ -44,7 +44,7 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="text-sm text-slate-500">Proyek Aktif</div>
+                            <div class="text-sm text-slate-500">Active Projects</div>
                             <div class="text-3xl font-bold text-emerald-600">{{ $projects->where('status', 'active')->count() }}</div>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                             </svg>
                         </div>
                         <div>
-                            <div class="text-sm text-slate-500">Proyek Selesai</div>
+                            <div class="text-sm text-slate-500">Completed Projects</div>
                             <div class="text-3xl font-bold text-sky-600">{{ $projects->where('status', 'completed')->count() }}</div>
                         </div>
                     </div>
@@ -67,13 +67,15 @@
             {{-- Project Table --}}
             <div class="flex justify-end mb-4">
                 @if(auth()->user()->canEdit())
-                    <a href="{{ route('projects.create') }}"
-                       class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Buat Proyek Baru
-                    </a>
+                    <form action="{{ route('projects.store') }}" method="POST" class="flex items-center gap-2">
+                        @csrf
+                        <input type="text" name="name" placeholder="New project name..." required
+                               class="border-slate-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500 w-64 shadow-sm py-2 px-3">
+                        <button type="submit"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-primary-700 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-600 focus:bg-primary-600 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                            Create
+                        </button>
+                    </form>
                 @endif
             </div>
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200">
@@ -83,9 +85,9 @@
                             <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <p class="mt-2 text-lg">Belum ada proyek.</p>
+                            <p class="mt-2 text-lg">No projects yet.</p>
                             @if(auth()->user()->canEdit())
-                                <a href="{{ route('projects.create') }}" class="mt-2 inline-block text-primary-600 hover:underline font-medium">Buat proyek pertama →</a>
+                                <button onclick="document.querySelector('input[name=name]').focus()" class="mt-2 inline-block text-primary-600 hover:underline font-medium">Create first project →</button>
                             @endif
                         </div>
                     @else
@@ -93,14 +95,14 @@
                             <table class="min-w-full divide-y divide-slate-200">
                                 <thead>
                                     <tr class="bg-slate-50">
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Proyek</th>
-                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Pelanggan</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Project Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Customer</th>
                                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Cost</th>
                                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Revenue</th>
                                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Gross Margin</th>
-                                        <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Kelayakan</th>
+                                        <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Feasibility</th>
                                         <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Aksi</th>
+                                        <th class="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-slate-100">
@@ -126,11 +128,11 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                                 @if($project->kelayakan === 'Layak')
                                                     <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
-                                                        Layak
+                                                        Feasible
                                                     </span>
                                                 @elseif($project->kelayakan === 'Tidak Layak')
                                                     <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                        Tidak Layak
+                                                        Unfeasible
                                                     </span>
                                                 @else
                                                     <span class="text-xs text-slate-400">N/A</span>
@@ -150,17 +152,17 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                                 <div class="flex items-center justify-center gap-2">
-                                                    <a href="{{ route('projects.show', $project) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors" title="Lihat">
+                                                    <a href="{{ route('projects.show', $project) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors" title="View">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                                     </a>
                                                     @if(auth()->user()->canEdit())
                                                         <a href="{{ route('projects.edit', $project) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Edit">
                                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                                         </a>
-                                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline" onsubmit="return confirm('Hapus proyek ini?')">
+                                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline" onsubmit="return confirm('Delete this project?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Hapus">
+                                                            <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete">
                                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                             </button>
                                                         </form>

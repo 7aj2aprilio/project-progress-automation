@@ -8,7 +8,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </span>
-                    Tentang & Panduan Penggunaan
+                    About & Guide
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1">Panduan operasional dan dokumentasi fitur aplikasi Project Progress & Profitability Automation.</p>
             </div>
@@ -52,7 +52,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-800 text-sm">Analisis Profitabilitas</h4>
+                        <h4 class="font-bold text-slate-800 text-sm">Profitability Analysis</h4>
                         <p class="text-slate-500 text-xs mt-1 leading-normal">Kalkulasi otomatis kelayakan investasi (NPV, IRR, WACC, Payback Period, Net Margin).</p>
                     </div>
                 </div>
@@ -64,7 +64,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-800 text-sm">Simulasi Cashflow</h4>
+                        <h4 class="font-bold text-slate-800 text-sm">Cashflow Simulation</h4>
                         <p class="text-slate-500 text-xs mt-1 leading-normal">Matriks arus kas bulanan berdasarkan termin TOP pelanggan, biaya mitra, dan pinjaman.</p>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-800 text-sm">BoQ & Kurva S Jadwal</h4>
+                        <h4 class="font-bold text-slate-800 text-sm">BoQ & S-Curve Schedule</h4>
                         <p class="text-slate-500 text-xs mt-1 leading-normal">Pembobotan item pekerjaan otomatis dan matriks rencana jadwal mingguan (Gantt Chart).</p>
                     </div>
                 </div>
@@ -88,7 +88,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-800 text-sm">Laporan & Ekspor PDF</h4>
+                        <h4 class="font-bold text-slate-800 text-sm">Reports & PDF Export</h4>
                         <p class="text-slate-500 text-xs mt-1 leading-normal">Laporan mingguan dengan deviasi, foto lapangan, dan cetak PDF resmi siap pakai.</p>
                     </div>
                 </div>
@@ -103,42 +103,42 @@
                             :class="activeTab === 'overview' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        Alur Kerja Utama
+                        Main Workflow
                     </button>
 
                     <button @click="activeTab = 'profitability'"
                             :class="activeTab === 'profitability' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        1. Finansial & Cashflow
+                        1. Financial & Cashflow
                     </button>
 
                     <button @click="activeTab = 'schedule'"
                             :class="activeTab === 'schedule' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        2. BoQ, Jadwal & Kurva S
+                        2. BoQ, Schedule & S-Curve
                     </button>
 
                     <button @click="activeTab = 'reports'"
                             :class="activeTab === 'reports' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        3. Laporan Mingguan & PDF
+                        3. Weekly Reports & PDF
                     </button>
 
                     <button @click="activeTab = 'roles'"
                             :class="activeTab === 'roles' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        4. Hak Akses & Peran
+                        4. Roles & Permissions
                     </button>
 
                     <button @click="activeTab = 'faq'"
                             :class="activeTab === 'faq' ? 'border-primary-800 text-primary-900 font-bold border-b-2' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                             class="whitespace-nowrap py-3 px-2 text-sm flex items-center gap-2 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Formula & FAQ
+                        Formulas & FAQ
                     </button>
                 </nav>
             </div>
@@ -151,7 +151,7 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'overview'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Alur Kerja Proyek Dari Awal Hingga Selesai</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Project Workflow From Start to Finish</h3>
                         <p class="text-sm text-slate-500 mt-1">Tahapan operasional pengelolaan proyek di dalam sistem secara berurutan:</p>
                     </div>
 
@@ -160,7 +160,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
                             <div>
                                 <div class="w-8 h-8 rounded-lg bg-primary-800 text-white font-bold text-sm flex items-center justify-center mb-3">1</div>
-                                <h4 class="font-bold text-slate-900 text-sm">Buat Proyek & Asumsi</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Create Project & Assumptions</h4>
                                 <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Input nama proyek, tanggal mulai & tanggal selesai (durasi bulan otomatis), customer, suku bunga pinjaman, diskonto, serta pajak standar.</p>
                             </div>
                             <div class="text-[11px] text-slate-500 border-t border-slate-200 pt-2.5">
@@ -172,7 +172,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
                             <div>
                                 <div class="w-8 h-8 rounded-lg bg-blue-700 text-white font-bold text-sm flex items-center justify-center mb-3">2</div>
-                                <h4 class="font-bold text-slate-900 text-sm">Simulasi Cashflow</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Cashflow Simulation</h4>
                                 <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Isi termin pembayaran (TOP) pelanggan & mitra. Sistem otomatis menghitung NPV, IRR, Gross Margin, biaya provisi, dan bunga pinjaman bulanan.</p>
                             </div>
                             <div class="text-[11px] text-slate-500 border-t border-slate-200 pt-2.5">
@@ -184,7 +184,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
                             <div>
                                 <div class="w-8 h-8 rounded-lg bg-purple-700 text-white font-bold text-sm flex items-center justify-center mb-3">3</div>
-                                <h4 class="font-bold text-slate-900 text-sm">BoQ & Matriks Jadwal</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">BoQ & Schedule Matrix</h4>
                                 <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Input rincian item pekerjaan (BoQ) dengan harga satuan untuk mendapatkan bobot otomatis. Plot jadwal mingguan di matriks Gantt chart.</p>
                             </div>
                             <div class="text-[11px] text-slate-500 border-t border-slate-200 pt-2.5">
@@ -196,7 +196,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
                             <div>
                                 <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white font-bold text-sm flex items-center justify-center mb-3">4</div>
-                                <h4 class="font-bold text-slate-900 text-sm">Laporan Mingguan Resmi</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Official Weekly Report</h4>
                                 <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">Input realisasi fisik mingguan, pantau deviasi Kurva S, unggah foto dokumentasi visual lapangan, dan unduh PDF Laporan Mingguan resmi.</p>
                             </div>
                             <div class="text-[11px] text-slate-500 border-t border-slate-200 pt-2.5">
@@ -211,7 +211,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="text-xs text-primary-900 space-y-1">
-                            <div class="font-bold text-sm">Sinkronisasi Otomatis Antar Modul:</div>
+                            <div class="font-bold text-sm">Automatic Module Synchronization:</div>
                             <p class="text-primary-800 leading-relaxed">
                                 Saat Anda mengubah tanggal mulai dan selesai pada tab Informasi, sistem langsung menyesuaikan jumlah kolom bulan pada <strong>Cashflow Project</strong> serta timeline minggu pada <strong>Jadwal & Kurva S</strong>. Semua perhitungan pajak, provisi, dan bunga pinjaman dihitung otomatis tanpa perlu proses manual di luar aplikasi.
                             </p>
@@ -224,7 +224,7 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'profitability'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Modul 1: Manajemen Profitabilitas & Cashflow</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Module 1: Profitability & Cashflow Management</h3>
                         <p class="text-sm text-slate-500 mt-1">Panduan langkah teknis mengelola data finansial proyek hingga ekspor PDF.</p>
                     </div>
 
@@ -232,7 +232,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-4">
                             <span class="w-7 h-7 rounded-full bg-primary-800 text-white font-bold text-xs flex items-center justify-center shrink-0">1</span>
                             <div class="space-y-1 text-xs">
-                                <h4 class="font-bold text-slate-900 text-sm">Membuat Proyek Baru</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Create a New Project</h4>
                                 <p class="text-slate-600 leading-relaxed">
                                     Buka menu <strong>Profitability dan Proyek</strong> &rarr; Klik tombol <strong>"+ Buat Proyek Baru"</strong>. Masukkan nama proyek dan klik simpan. Sistem akan otomatis menyiapkan data pendukung (Informasi, Asumsi, Cost Structure, dan Cashflow).
                                 </p>
@@ -242,7 +242,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-4">
                             <span class="w-7 h-7 rounded-full bg-primary-800 text-white font-bold text-xs flex items-center justify-center shrink-0">2</span>
                             <div class="space-y-2 text-xs flex-1">
-                                <h4 class="font-bold text-slate-900 text-sm">Mengisi Tab "1. Informasi & Asumsi"</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Fill in "1. Information & Assumptions" Tab</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div class="p-3 bg-white rounded-lg border border-slate-200">
                                         <strong class="text-slate-800 block mb-1">Periode Proyek:</strong>
@@ -259,7 +259,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-4">
                             <span class="w-7 h-7 rounded-full bg-primary-800 text-white font-bold text-xs flex items-center justify-center shrink-0">3</span>
                             <div class="space-y-2 text-xs flex-1">
-                                <h4 class="font-bold text-slate-900 text-sm">Mengisi Tab "2. Cashflow Project"</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Fill in "2. Project Cashflow" Tab</h4>
                                 <p class="text-slate-600 leading-relaxed">Isi nilai-nilai pada tabel arus kas bulanan:</p>
                                 <ul class="list-disc list-inside space-y-1 text-slate-700 bg-white p-3.5 rounded-lg border border-slate-200">
                                     <li><strong>TOP Pelanggan (%):</strong> Termin penerimaan pembayaran dari klien (total kumulatif 100%).</li>
@@ -274,7 +274,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-4">
                             <span class="w-7 h-7 rounded-full bg-primary-800 text-white font-bold text-xs flex items-center justify-center shrink-0">4</span>
                             <div class="space-y-2 text-xs flex-1">
-                                <h4 class="font-bold text-slate-900 text-sm">Membaca Rangkuman Kelayakan & Ekspor PDF</h4>
+                                <h4 class="font-bold text-slate-900 text-sm">Read Feasibility Summary & Export PDF</h4>
                                 <p class="text-slate-600 leading-relaxed">
                                     Pada halaman Detail Proyek, indikator <strong>NPV, IRR, WACC, Gross Margin, Net Margin, dan Payback Period</strong> sudah terhitung secara otomatis. Klik tombol <strong>"Download PDF Cashflow"</strong> untuk mengunduh laporan PDF siap cetak dalam orientasi landscape.
                                 </p>
@@ -288,14 +288,14 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'schedule'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Modul 2: Bill of Quantities (BoQ) & Penjadwalan Kurva S</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Module 2: Bill of Quantities (BoQ) & S-Curve Scheduling</h3>
                         <p class="text-sm text-slate-500 mt-1">Mengelola daftar pekerjaan, pembobotan otomatis, dan plotting jadwal mingguan.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <div class="w-9 h-9 rounded-lg bg-primary-800 text-white flex items-center justify-center font-bold text-sm">1</div>
-                            <h4 class="font-bold text-slate-900 text-sm">Input Item BoQ</h4>
+                            <h4 class="font-bold text-slate-900 text-sm">Input BoQ Items</h4>
                             <p class="text-xs text-slate-600 leading-relaxed">
                                 Masuk ke menu <strong>Progres & Laporan</strong> &rarr; Pilih Proyek &rarr; Tab <strong>BoQ & Item Pekerjaan</strong>. Masukkan Uraian Pekerjaan, Volume, Satuan, dan Harga Satuan. <strong>Bobot (%)</strong> terhitung otomatis.
                             </p>
@@ -303,7 +303,7 @@
 
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <div class="w-9 h-9 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-sm">2</div>
-                            <h4 class="font-bold text-slate-900 text-sm">Plotting Matriks Jadwal (Gantt)</h4>
+                            <h4 class="font-bold text-slate-900 text-sm">Plotting Schedule Matrix (Gantt)</h4>
                             <p class="text-xs text-slate-600 leading-relaxed">
                                 Buka tab <strong>Jadwal & Kurva S</strong>. Cukup klik pada kotak minggu (M1, M2, M3, M4) baris pekerjaan untuk mengaktifkan jadwal kerja. Bobot otomatis terbagi rata ke setiap minggu yang aktif.
                             </p>
@@ -311,7 +311,7 @@
 
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <div class="w-9 h-9 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-sm">3</div>
-                            <h4 class="font-bold text-slate-900 text-sm">Membaca Kurva S & Cetak</h4>
+                            <h4 class="font-bold text-slate-900 text-sm">Reading S-Curve & Printing</h4>
                             <p class="text-xs text-slate-600 leading-relaxed">
                                 Grafik Kurva S menampilkan perbandingan <strong>Garis Rencana</strong> (Target kumulatif) vs <strong>Garis Realisasi</strong> (Progres aktual lapangan). Klik <strong>"Download PDF Jadwal"</strong> untuk mencetak.
                             </p>
@@ -324,7 +324,7 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'reports'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Modul 3: Pelaporan Mingguan & Visual Dokumentasi</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Module 3: Weekly Reporting & Visual Documentation</h3>
                         <p class="text-sm text-slate-500 mt-1">Pembuatan laporan mingguan resmi, upload foto lapangan, dan pembuatan berkas PDF.</p>
                     </div>
 
@@ -332,7 +332,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-full bg-primary-800 text-white text-xs flex items-center justify-center">1</span>
-                                Pengisian Progres Fisik Mingguan
+                                Weekly Physical Progress Input
                             </h4>
                             <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside leading-relaxed">
                                 <li>Pilih Minggu Ke- dan tanggal periode laporan mingguan.</li>
@@ -345,7 +345,7 @@
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-full bg-primary-800 text-white text-xs flex items-center justify-center">2</span>
-                                Upload Foto & Download PDF
+                                Upload Photos & Download PDF
                             </h4>
                             <ul class="text-xs text-slate-600 space-y-1.5 list-disc list-inside leading-relaxed">
                                 <li>Unggah foto dokumentasi visual pekerjaan beserta tanggal dan deskripsi aktivitas.</li>
@@ -361,7 +361,7 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'roles'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Modul 4: Hak Akses & Peran Pengguna (RBAC)</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Module 4: User Roles & Permissions (RBAC)</h3>
                         <p class="text-sm text-slate-500 mt-1">Tingkatan hak akses untuk menjamin keamanan dan akurasi data proyek.</p>
                     </div>
 
@@ -373,14 +373,14 @@
                         </div>
 
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
-                            <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 inline-block">Analis Proyek</span>
-                            <h4 class="font-bold text-slate-900 text-sm">Operasional (CRUD)</h4>
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-blue-100 text-blue-800 inline-block">Project Analyst</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Operational (CRUD)</h4>
                             <p class="text-xs text-slate-600 leading-relaxed">Dapat menambah dan mengedit proyek, mengisi cashflow, mengelola BoQ & jadwal Gantt, serta membuat Laporan Mingguan & ekspor PDF.</p>
                         </div>
 
                         <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                             <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-200 text-slate-700 inline-block">Viewer</span>
-                            <h4 class="font-bold text-slate-900 text-sm">Hanya Lihat (Read-Only)</h4>
+                            <h4 class="font-bold text-slate-900 text-sm">Read-Only</h4>
                             <p class="text-xs text-slate-600 leading-relaxed">Dikhususkan untuk pimpinan atau tim monitoring yang hanya memantau progres, melihat grafik Kurva S, dan mengunduh laporan PDF tanpa izin edit.</p>
                         </div>
                     </div>
@@ -391,7 +391,7 @@
                 {{-- ======================================================== --}}
                 <div x-show="activeTab === 'faq'" class="space-y-6">
                     <div>
-                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Formula Kalkulasi & Pertanyaan Umum (FAQ)</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-slate-900">Calculation Formulas & General Questions (FAQ)</h3>
                         <p class="text-sm text-slate-500 mt-1">Daftar formula matematis sistem dan solusi kendala umum.</p>
                     </div>
 
@@ -399,9 +399,9 @@
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-100 text-slate-700 uppercase font-semibold border-b border-slate-200">
                                 <tr>
-                                    <th class="px-4 py-3">Komponen</th>
-                                    <th class="px-4 py-3">Formula Default</th>
-                                    <th class="px-4 py-3">Keterangan</th>
+                                    <th class="px-4 py-3">Component</th>
+                                    <th class="px-4 py-3">Default Formula</th>
+                                    <th class="px-4 py-3">Description</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 text-slate-600">
@@ -431,13 +431,13 @@
 
                     <div class="space-y-3 pt-2">
                         <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                            <strong class="text-slate-900 block text-sm">Bagaimana jika durasi proyek berubah?</strong>
+                            <strong class="text-slate-900 block text-sm">What if the project duration changes?</strong>
                             <p class="text-slate-600 leading-relaxed">
                                 Masuk ke Edit Proyek &rarr; Tab Informasi & Asumsi &rarr; Ubah tanggal mulai atau selesai, lalu simpan. Sistem akan otomatis menyesuaikan jumlah kolom bulan cashflow dan timeline minggu jadwal.
                             </p>
                         </div>
                         <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                            <strong class="text-slate-900 block text-sm">Apakah nilai otomatis bisa diubah manual?</strong>
+                            <strong class="text-slate-900 block text-sm">Can automatic values be changed manually?</strong>
                             <p class="text-slate-600 leading-relaxed">
                                 Ya! Sistem memiliki fitur <em>manual override</em>. Jika Anda mengisi nominal langsung pada baris kalkulasi otomatis, sistem akan menyimpan nilai manual Anda tanpa menimpanya kembali.
                             </p>

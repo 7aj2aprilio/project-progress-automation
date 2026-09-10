@@ -27,7 +27,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'error') {
-                    alert('Gagal menyimpan jadwal');
+                    alert('Failed to save schedule');
                 }
             })
             .catch(error => {
@@ -38,26 +38,21 @@
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h3 class="text-lg font-semibold text-slate-800">Time Schedule (Gantt Chart)</h3>
-                <p class="text-sm text-slate-500">Klik kotak pada kolom minggu untuk menandai jadwal pengerjaan masing-masing item.</p>
+                <p class="text-sm text-slate-500">Click the box in the week column to mark the work schedule for each item.</p>
             </div>
-            
-            @if(count($projectMonths ?? []) > 0)
-                <div class="flex items-center gap-6">
-                    <a href="{{ route('projects.gantt.pdf', $project) }}" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 focus:bg-red-500 active:bg-red-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Export PDF
-                    </a>
-                </div>
-            @endif
+            <a href="{{ route('projects.gantt.pdf', $project->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 shadow-sm transition-all">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Export PDF
+            </a>
         </div>
 
         @if(count($projectMonths ?? []) === 0)
             <div class="bg-yellow-50 text-yellow-800 p-4 rounded-lg flex items-start">
                 <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 <div>
-                    <h4 class="font-bold text-yellow-900">Periode Proyek Belum Diatur</h4>
-                    <p class="mt-1">Kolom jadwal belum dapat ditampilkan karena <strong>Estimasi Mulai</strong> atau <strong>Estimasi Selesai</strong> belum diatur.</p>
-                    <a href="{{ route('projects.show', $project) }}" class="mt-2 inline-block bg-yellow-100 text-yellow-800 font-semibold px-3 py-1 rounded hover:bg-yellow-200 transition-colors">Lihat Informasi Proyek</a>
+                    <h4 class="font-bold text-yellow-900">Project Period Not Set</h4>
+                    <p class="mt-1">Schedule columns cannot be displayed because <strong>Estimated Start</strong> or <strong>Estimated End</strong> has not been set.</p>
+                    <a href="{{ route('projects.show', $project) }}" class="mt-2 inline-block bg-yellow-100 text-yellow-800 font-semibold px-3 py-1 rounded hover:bg-yellow-200 transition-colors">View Project Information</a>
                 </div>
             </div>
         @else

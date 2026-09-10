@@ -11,47 +11,15 @@
                 <span class="p-1.5 bg-indigo-100 text-indigo-700 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                 </span>
-                Time Schedule & Kurva S
+                Time Schedule & S-Curve
             </h3>
             <p class="text-xs text-slate-500 mt-0.5">
-                Baris Hijau = Realisasi bobot (otomatis dari Laporan Mingguan) • Baris Biru = Rencana / Plan (input manual)
+                Green Row = Actual weight (auto from Weekly Report) • Blue Row = Plan (manual input)
             </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
-            @if(auth()->user()->canEdit())
-                {{-- Tombol Atur Periode Minggu --}}
-                <button type="button" @click="$dispatch('open-manage-weeks')"
-                        class="inline-flex items-center px-4 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold shadow-sm transition-all">
-                    <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Atur Periode Minggu ({{ $weeks->count() }})
-                </button>
-
-                {{-- Tombol Simpan Rencana --}}
-                <button type="button" @click="savePlans()" :disabled="saving"
-                        class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
-                    <svg x-show="saving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <svg x-show="!saving" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
-                    </svg>
-                    <span x-text="saving ? 'Menyimpan...' : 'Simpan Rencana'"></span>
-                </button>
-            @endif
-
-            {{-- Tombol Export PDF --}}
-            <a href="{{ route('projects.time-schedule.pdf', $project) }}" 
-               class="inline-flex items-center px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
-               target="_blank">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Export PDF (Landscape)
-            </a>
+        <div>
+            <!-- Buttons moved -->
         </div>
     </div>
 
@@ -64,15 +32,15 @@
                 </svg>
             </div>
             <div class="max-w-md mx-auto">
-                <h4 class="text-base font-bold text-slate-800">Periode Minggu Belum Dibuat</h4>
+                <h4 class="text-base font-bold text-slate-800">Week Periods Not Yet Created</h4>
                 <p class="text-xs text-slate-500 mt-1">
-                    Silakan atur dan definisikan minggu-minggu proyek Anda secara manual terlebih dahulu sebelum mengisi rencana (plan) dan melihat Kurva S.
+                    Please configure and define your project weeks manually first before filling out the plan and viewing the S-Curve.
                 </p>
             </div>
             @if(auth()->user()->canEdit())
                 <button type="button" @click="$dispatch('open-manage-weeks')"
                         class="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md transition-all">
-                    + Buat Periode Minggu Sekarang
+                    + Create Week Periods Now
                 </button>
             @endif
         </div>
@@ -83,16 +51,16 @@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <span class="text-xs font-bold text-slate-700">Grafik Kurva S (Kumulatif Rencana vs Realisasi)</span>
+                    <span class="text-xs font-bold text-slate-700">S-Curve Chart (Cumulative Plan vs Actual)</span>
                 </div>
                 <div class="flex items-center space-x-4 text-xs font-semibold">
                     <span class="flex items-center space-x-1.5 text-rose-600">
                         <span class="w-3 h-0.5 bg-rose-500 inline-block"></span>
-                        <span>Rencana Kumulatif</span>
+                        <span>Cumulative Plan</span>
                     </span>
                     <span class="flex items-center space-x-1.5 text-emerald-600">
                         <span class="w-3 h-0.5 bg-emerald-500 inline-block"></span>
-                        <span>Realisasi Kumulatif</span>
+                        <span>Cumulative Actual</span>
                     </span>
                 </div>
             </div>
@@ -111,12 +79,12 @@
                     <thead class="bg-slate-100 text-slate-700 sticky top-0 z-30 shadow-sm">
                         <tr class="divide-x divide-slate-200 border-b border-slate-300 font-bold uppercase tracking-wider text-[11px]">
                             <th class="py-3 px-2 text-center w-12 sticky left-0 bg-slate-100 z-40">No</th>
-                            <th class="py-3 px-3 min-w-[280px] sticky left-12 bg-slate-100 z-40">Uraian Pekerjaan</th>
-                            <th class="py-3 px-2 text-right w-24 sticky left-[328px] bg-slate-100 z-40">Bobot</th>
+                            <th class="py-3 px-3 min-w-[280px] sticky left-12 bg-slate-100 z-40">Work Description</th>
+                            <th class="py-3 px-2 text-right w-24 sticky left-[328px] bg-slate-100 z-40">Weight</th>
                             
                             @foreach($weeks as $w)
                                 <th class="py-2.5 px-2 text-center min-w-[105px] max-w-[125px]">
-                                    <div class="font-bold text-indigo-950">Minggu ke-{{ $w->week_number }}</div>
+                                    <div class="font-bold text-indigo-950">Week {{ $w->week_number }}</div>
                                     <div class="text-[10px] font-normal text-slate-500 tracking-normal">{{ $w->formatted_range }}</div>
                                 </th>
                             @endforeach
@@ -147,7 +115,7 @@
                             <tr class="bg-slate-50 text-slate-800 border-b border-slate-200">
                                 <td class="py-1 px-2 sticky left-0 bg-slate-50 z-20"></td>
                                 <td class="py-1 px-3 text-[11px] text-slate-500 italic sticky left-12 bg-slate-50 z-20 pl-6">
-                                    ↳ Rencana (Subtotal)
+                                    ↳ Plan (Subtotal)
                                 </td>
                                 <td class="py-1 px-2 sticky left-[328px] bg-slate-50 z-20"></td>
                                 
@@ -183,7 +151,7 @@
                                     <tr class="bg-white text-slate-700 border-b border-slate-200">
                                         <td class="py-1 px-2 sticky left-0 bg-white z-20"></td>
                                         <td class="py-1 px-3 text-[10px] text-slate-400 italic sticky left-12 bg-white z-20 pl-10">
-                                            ↳ Rencana (Sub)
+                                            ↳ Plan (Sub)
                                         </td>
                                         <td class="py-1 px-2 sticky left-[328px] bg-white z-20"></td>
 
@@ -214,7 +182,7 @@
                         {{-- 1. RENCANA (SUM Baris Biru) --}}
                         <tr class="bg-amber-50/90 text-amber-950 border-t-2 border-amber-300">
                             <td colspan="3" class="py-2.5 px-4 text-left uppercase tracking-wider sticky left-0 bg-amber-50 z-40">
-                                1. RENCANA
+                                1. PLAN
                             </td>
                             @foreach($weeks as $w)
                                 <td class="py-2.5 px-1 text-center text-amber-900 border-l border-amber-200">
@@ -226,7 +194,7 @@
                         {{-- 2. RENCANA KOMULATIF --}}
                         <tr class="bg-amber-100 text-amber-950">
                             <td colspan="3" class="py-2.5 px-4 text-left uppercase tracking-wider sticky left-0 bg-amber-100 z-40">
-                                2. RENCANA KOMULATIF
+                                2. CUMULATIVE PLAN
                             </td>
                             @foreach($weeks as $w)
                                 <td class="py-2.5 px-1 text-center text-amber-950 font-black border-l border-amber-200">
@@ -238,7 +206,7 @@
                         {{-- 3. REALISASI (SUM Baris Hijau) --}}
                         <tr class="bg-emerald-50/90 text-emerald-950">
                             <td colspan="3" class="py-2.5 px-4 text-left uppercase tracking-wider sticky left-0 bg-emerald-50 z-40">
-                                3. REALISASI
+                                3. ACTUAL
                             </td>
                             @foreach($weeks as $w)
                                 <td class="py-2.5 px-1 text-center text-emerald-900 border-l border-emerald-200">
@@ -250,7 +218,7 @@
                         {{-- 4. REALISASI KOMULATIF --}}
                         <tr class="bg-emerald-100 text-emerald-950">
                             <td colspan="3" class="py-2.5 px-4 text-left uppercase tracking-wider sticky left-0 bg-emerald-100 z-40">
-                                4. REALISASI KOMULATIF
+                                4. CUMULATIVE ACTUAL
                             </td>
                             @foreach($weeks as $w)
                                 <td class="py-2.5 px-1 text-center text-emerald-950 font-black border-l border-emerald-200">
@@ -262,7 +230,7 @@
                         {{-- 5. DEVIASI --}}
                         <tr class="bg-slate-900 text-white">
                             <td colspan="3" class="py-2.5 px-4 text-left uppercase tracking-wider sticky left-0 bg-slate-900 z-40">
-                                5. DEVIASI
+                                5. DEVIATION
                             </td>
                             @foreach($weeks as $w)
                                 <td class="py-2.5 px-1 text-center border-l border-slate-700">
@@ -282,6 +250,23 @@
 
                 </table>
             </div>
+            
+            {{-- Tombol Simpan Rencana --}}
+            @if(auth()->user()->canEdit())
+                <div class="mt-4 flex justify-end p-4 border-t border-slate-200 bg-slate-50">
+                    <button type="button" @click="savePlans()" :disabled="saving"
+                            class="inline-flex items-center px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-sm font-semibold shadow-sm transition-all">
+                        <svg x-show="saving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <svg x-show="!saving" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        <span x-text="saving ? 'Saving...' : 'Save Plan'"></span>
+                    </button>
+                </div>
+            @endif
         </div>
 
     @endif
@@ -307,7 +292,7 @@ function initKurvaSChart(canvas, labels, renData, realData) {
                 labels: [...labels],
                 datasets: [
                     {
-                        label: 'Rencana Kumulatif',
+                        label: 'Cumulative Plan',
                         data: [...renData],
                         borderColor: '#e11d48',
                         backgroundColor: 'rgba(225, 29, 72, 0.05)',
@@ -319,7 +304,7 @@ function initKurvaSChart(canvas, labels, renData, realData) {
                         fill: true,
                     },
                     {
-                        label: 'Realisasi Kumulatif',
+                        label: 'Cumulative Actual',
                         data: [...realData],
                         borderColor: '#059669',
                         backgroundColor: 'rgba(5, 150, 105, 0.05)',
@@ -634,13 +619,13 @@ function timeScheduleComponent() {
                 });
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    alert('Rencana (Plan) Kurva S berhasil disimpan!');
+                    alert('S-Curve Plan saved successfully!');
                 } else {
-                    alert(data.message || 'Gagal menyimpan rencana.');
+                    alert(data.message || 'Failed to save plan.');
                 }
             } catch (err) {
                 console.error(err);
-                alert('Terjadi kesalahan jaringan.');
+                alert('Network error occurred.');
             } finally {
                 this.saving = false;
             }
@@ -659,7 +644,7 @@ function timeScheduleComponent() {
                 return;
             }
 
-            const labels = this.weeks.map(w => 'Minggu ' + w.week_number);
+            const labels = this.weeks.map(w => 'Week ' + w.week_number);
             const renData = this.weeks.map(w => this.getWeekRencanaKomulatif(w.id));
             const realData = this.weeks.map(w => this.getWeekRealisasiKomulatif(w.id));
 
